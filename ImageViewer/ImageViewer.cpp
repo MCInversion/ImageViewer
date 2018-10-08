@@ -1,5 +1,15 @@
 #include "ImageViewer.h"
 
+void openImage(QString fileName)
+{
+
+}
+
+void saveImage(QString fileName)
+{
+
+}
+
 ImageViewer::ImageViewer(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -8,10 +18,18 @@ ImageViewer::ImageViewer(QWidget *parent)
 
 void ImageViewer::ActionLoadImage()
 {
-	printf("loading image\n");
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", "image files (*.png *.jpg *.bmp)");
+	if (!fileName.isEmpty())
+		openImage(fileName);
 }
 
 void ImageViewer::ActionSaveImage()
 {
-	printf("saving image\n");
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), "untitled.png", tr("png Files (*.png)"));
+	if (fileName.isEmpty()) {
+		return;
+	}
+	else {
+		saveImage(fileName);
+	}
 }

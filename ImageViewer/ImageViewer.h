@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
+#include <QFileDialog>
 #include "qlayoutitem.h"
 #include "ui_ImageViewer.h"
 
