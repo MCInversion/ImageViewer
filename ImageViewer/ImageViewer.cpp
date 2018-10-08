@@ -8,10 +8,6 @@ ImageViewer::ImageViewer(QWidget *parent)
 
 void ImageViewer::ActionLoadImage()
 {
-
-
-
-
 	printf("loading image\n");
 }
 
