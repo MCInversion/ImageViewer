@@ -1,13 +1,66 @@
 #include "ImageViewer.h"
 
-void openImage(QString fileName)
+void ImageViewer::resizeEvent(QResizeEvent *event)
 {
-
+	QWidget::resizeEvent(event);
 }
 
-void saveImage(QString fileName)
+void ImageViewer::resizeImage(QImage *image, const QSize &newSize)
 {
+	if (image->size() == newSize)
+		return;
 
+	QImage newImage(newSize, QImage::Format_RGB32);
+	QGraphicsScene* scene = new QGraphicsScene();
+	QGraphicsView* view = ui.graphicsView;
+	QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(getLast()));
+	scene->addItem(item);
+	view->show();
+	update();
+}
+
+bool ImageViewer::openImage(const QString &fileName)
+{
+	QImage loadedImage;
+	if (!loadedImage.load(fileName))
+		return false;
+
+	QSize newSize = loadedImage.size();
+	resizeImage(&loadedImage, newSize);
+	images.push_back(loadedImage);
+	ui.graphicsView->resize(newSize);
+
+	QGraphicsScene* scene = new QGraphicsScene();
+	QGraphicsView* view = ui.graphicsView;
+	QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(getLast()));
+	QPixmap pixmap(fileName);
+	scene -> addPixmap(pixmap);
+	ui.graphicsView -> setScene(scene);
+	update();
+	return true;
+}
+
+bool ImageViewer::saveImage(const QString &fileName)
+{
+	QImage visibleImage = getLast();
+	resizeImage(&visibleImage, size());
+
+	if (visibleImage.save(fileName, "png")) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+QImage ImageViewer::getImage(int i)
+{
+	return images.at(i);
+}
+
+QImage ImageViewer::getLast()
+{
+	return images.back();
 }
 
 ImageViewer::ImageViewer(QWidget *parent)
