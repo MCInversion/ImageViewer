@@ -1,5 +1,17 @@
 #include "ImageViewer.h"
 
+void ImageViewer::resizeImage(QImage *image, const QSize &newSize)
+{
+	if (image->size() == newSize)
+		return;
+
+	QImage newImage(newSize, QImage::Format_RGB32);
+	newImage.fill(qRgb(255, 255, 255));
+	QPainter painter(&newImage);
+	painter.drawImage(QPoint(0, 0), *image);
+	*image = newImage;
+}
+
 void ImageViewer::displayImage(QImage *image)
 {
 	QGraphicsScene* scene = new QGraphicsScene();
@@ -16,29 +28,14 @@ void ImageViewer::resizeEvent(QResizeEvent *event)
 	QWidget::resizeEvent(event);
 }
 
-void ImageViewer::resizeImage(QImage *image, const QSize &newSize)
-{
-	if (image->size() == newSize)
-		return;
-
-	QImage newImage(newSize, QImage::Format_RGB32);
-	newImage.fill(qRgb(255, 255, 255));
-	QPainter painter(&newImage);
-	painter.drawImage(QPoint(0, 0), *image);
-	*image = newImage;
-}
-
 bool ImageViewer::openImage(const QString &fileName)
 {
 	QImage loadedImage;
 	if (!loadedImage.load(fileName))
 		return false;
 
-	QSize newSize = loadedImage.size();
-	printf("size = %d x %d", ui.graphicsView->size().height(), ui.graphicsView->size().width());
-	resizeImage(&loadedImage, ui.graphicsView -> size());
 	images.push_back(loadedImage);
-	displayImage(&loadedImage);
+	displayImage(&getLast());
 	
 	return true;
 }
@@ -86,7 +83,7 @@ void ImageViewer::ActionOpenImage()
 void ImageViewer::ActionLoadImage()
 {
 	int id = ui.FileListWidget->currentRow();
-	displayImage(&images.at(id));
+	displayImage(&getImage(id));
 }
 
 void ImageViewer::ActionSaveImage()
