@@ -31,8 +31,9 @@ QT_BEGIN_NAMESPACE
 class Ui_ImageViewerClass
 {
 public:
-    QAction *actionLoad_Image;
+    QAction *actionOpen_Image;
     QAction *actionSave_Image;
+    QAction *actionLoadImage;
     QWidget *centralWidget;
     QGridLayout *gridLayout;
     QHBoxLayout *horizontalLayout_2;
@@ -50,10 +51,12 @@ public:
         if (ImageViewerClass->objectName().isEmpty())
             ImageViewerClass->setObjectName(QStringLiteral("ImageViewerClass"));
         ImageViewerClass->resize(667, 631);
-        actionLoad_Image = new QAction(ImageViewerClass);
-        actionLoad_Image->setObjectName(QStringLiteral("actionLoad_Image"));
+        actionOpen_Image = new QAction(ImageViewerClass);
+        actionOpen_Image->setObjectName(QStringLiteral("actionOpen_Image"));
         actionSave_Image = new QAction(ImageViewerClass);
         actionSave_Image->setObjectName(QStringLiteral("actionSave_Image"));
+        actionLoadImage = new QAction(ImageViewerClass);
+        actionLoadImage->setObjectName(QStringLiteral("actionLoadImage"));
         centralWidget = new QWidget(ImageViewerClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
@@ -105,12 +108,13 @@ public:
         ImageViewerClass->setStatusBar(statusBar);
 
         menuBar->addAction(menuFile->menuAction());
-        menuFile->addAction(actionLoad_Image);
+        menuFile->addAction(actionOpen_Image);
         menuFile->addAction(actionSave_Image);
 
         retranslateUi(ImageViewerClass);
-        QObject::connect(actionLoad_Image, SIGNAL(triggered()), ImageViewerClass, SLOT(ActionLoadImage()));
         QObject::connect(actionSave_Image, SIGNAL(triggered()), ImageViewerClass, SLOT(ActionSaveImage()));
+        QObject::connect(FileListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), ImageViewerClass, SLOT(ActionLoadImage()));
+        QObject::connect(actionOpen_Image, SIGNAL(triggered()), ImageViewerClass, SLOT(ActionOpenImage()));
 
         QMetaObject::connectSlotsByName(ImageViewerClass);
     } // setupUi
@@ -118,8 +122,12 @@ public:
     void retranslateUi(QMainWindow *ImageViewerClass)
     {
         ImageViewerClass->setWindowTitle(QApplication::translate("ImageViewerClass", "ImageViewer", Q_NULLPTR));
-        actionLoad_Image->setText(QApplication::translate("ImageViewerClass", "Load Image", Q_NULLPTR));
+        actionOpen_Image->setText(QApplication::translate("ImageViewerClass", "Open Image", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        actionOpen_Image->setToolTip(QApplication::translate("ImageViewerClass", "Open Image", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
         actionSave_Image->setText(QApplication::translate("ImageViewerClass", "Save Image", Q_NULLPTR));
+        actionLoadImage->setText(QApplication::translate("ImageViewerClass", "LoadImage", Q_NULLPTR));
         menuFile->setTitle(QApplication::translate("ImageViewerClass", "File", Q_NULLPTR));
     } // retranslateUi
 

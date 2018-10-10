@@ -64,7 +64,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionLoad_Image"/>
+    <addaction name="actionOpen_Image"/>
     <addaction name="actionSave_Image"/>
    </widget>
    <addaction name="menuFile"/>
@@ -78,14 +78,22 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionLoad_Image">
+  <action name="actionOpen_Image">
    <property name="text">
-    <string>Load Image</string>
+    <string>Open Image</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Image</string>
    </property>
   </action>
   <action name="actionSave_Image">
    <property name="text">
     <string>Save Image</string>
+   </property>
+  </action>
+  <action name="actionLoadImage">
+   <property name="text">
+    <string>LoadImage</string>
    </property>
   </action>
  </widget>
@@ -94,22 +102,6 @@
   <include location="ImageViewer.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>actionLoad_Image</sender>
-   <signal>triggered()</signal>
-   <receiver>ImageViewerClass</receiver>
-   <slot>ActionLoadImage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>333</x>
-     <y>315</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>actionSave_Image</sender>
    <signal>triggered()</signal>
@@ -126,9 +118,42 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>FileListWidget</sender>
+   <signal>itemDoubleClicked(QListWidgetItem*)</signal>
+   <receiver>ImageViewerClass</receiver>
+   <slot>ActionLoadImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>164</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>307</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionOpen_Image</sender>
+   <signal>triggered()</signal>
+   <receiver>ImageViewerClass</receiver>
+   <slot>ActionOpenImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>333</x>
+     <y>315</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>ActionLoadImage()</slot>
+  <slot>ActionOpenImage()</slot>
   <slot>ActionSaveImage()</slot>
+  <slot>ActionLoadImage()</slot>
  </slots>
 </ui>

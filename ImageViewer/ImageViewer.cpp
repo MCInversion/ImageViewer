@@ -1,5 +1,16 @@
 #include "ImageViewer.h"
 
+void ImageViewer::displayImage(QImage *image)
+{
+	QGraphicsScene* scene = new QGraphicsScene();
+	QGraphicsView* view = ui.graphicsView;
+	QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(getLast()));
+	QPixmap pixmap = QPixmap().fromImage(*image);
+	scene -> addPixmap(pixmap);
+	ui.graphicsView -> setScene(scene);
+	update();
+}
+
 void ImageViewer::resizeEvent(QResizeEvent *event)
 {
 	QWidget::resizeEvent(event);
@@ -24,17 +35,11 @@ bool ImageViewer::openImage(const QString &fileName)
 		return false;
 
 	QSize newSize = loadedImage.size();
-	resizeImage(&loadedImage, newSize);
+	printf("size = %d x %d", ui.graphicsView->size().height(), ui.graphicsView->size().width());
+	resizeImage(&loadedImage, ui.graphicsView -> size());
 	images.push_back(loadedImage);
-	//ui.graphicsView->resize(newSize);
-
-	QGraphicsScene* scene = new QGraphicsScene();
-	QGraphicsView* view = ui.graphicsView;
-	QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(getLast()));
-	QPixmap pixmap(fileName);
-	scene -> addPixmap(pixmap);
-	ui.graphicsView -> setScene(scene);
-	update();
+	displayImage(&loadedImage);
+	
 	return true;
 }
 
@@ -67,7 +72,7 @@ ImageViewer::ImageViewer(QWidget *parent)
 	ui.setupUi(this);
 }
 
-void ImageViewer::ActionLoadImage()
+void ImageViewer::ActionOpenImage()
 {
 	QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", "image files (*.png *.jpg *.bmp)");
 	if (!fileName.isEmpty()) {
@@ -76,6 +81,12 @@ void ImageViewer::ActionLoadImage()
 		QString name = fileName.split("/").last();
 		ui.FileListWidget -> insertItem(lastrow, name);
 	}		
+}
+
+void ImageViewer::ActionLoadImage()
+{
+	int id = ui.FileListWidget->currentRow();
+	displayImage(&images.at(id));
 }
 
 void ImageViewer::ActionSaveImage()
