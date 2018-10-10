@@ -11,12 +11,10 @@ void ImageViewer::resizeImage(QImage *image, const QSize &newSize)
 		return;
 
 	QImage newImage(newSize, QImage::Format_RGB32);
-	QGraphicsScene* scene = new QGraphicsScene();
-	QGraphicsView* view = ui.graphicsView;
-	QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(getLast()));
-	scene->addItem(item);
-	view->show();
-	update();
+	newImage.fill(qRgb(255, 255, 255));
+	QPainter painter(&newImage);
+	painter.drawImage(QPoint(0, 0), *image);
+	*image = newImage;
 }
 
 bool ImageViewer::openImage(const QString &fileName)
@@ -28,7 +26,7 @@ bool ImageViewer::openImage(const QString &fileName)
 	QSize newSize = loadedImage.size();
 	resizeImage(&loadedImage, newSize);
 	images.push_back(loadedImage);
-	ui.graphicsView->resize(newSize);
+	//ui.graphicsView->resize(newSize);
 
 	QGraphicsScene* scene = new QGraphicsScene();
 	QGraphicsView* view = ui.graphicsView;
@@ -72,8 +70,12 @@ ImageViewer::ImageViewer(QWidget *parent)
 void ImageViewer::ActionLoadImage()
 {
 	QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", "image files (*.png *.jpg *.bmp)");
-	if (!fileName.isEmpty())
+	if (!fileName.isEmpty()) {
 		openImage(fileName);
+		int lastrow = ui.FileListWidget -> count();
+		QString name = fileName.split("/").last();
+		ui.FileListWidget -> insertItem(lastrow, name);
+	}		
 }
 
 void ImageViewer::ActionSaveImage()
