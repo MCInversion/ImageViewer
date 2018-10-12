@@ -18,15 +18,16 @@ public slots:
 	void ActionOpenImage();
 	void ActionLoadImage();
 	void ActionSaveImage();
-	void resizeImage(QImage *image, const QSize &newSize);
+	QImage getResized(QImage *image, const QSize &newSize, bool keepAspectRatio = true);
 	bool openImage(const QString &fileName);
 	bool saveImage(const QString &fileName);
 	void displayImage(QImage *image);
 	QImage getImage(int i);
 	QImage getLast();
 protected:
-	void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
+	void resizeEvent(QResizeEvent *event);
 private:
 	Ui::ImageViewerClass ui;
 	std::vector<QImage> images;
+	QImage *currentImg = NULL;
 };

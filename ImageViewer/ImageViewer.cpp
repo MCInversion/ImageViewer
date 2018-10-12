@@ -1,31 +1,31 @@
 #include "ImageViewer.h"
 
-void ImageViewer::resizeImage(QImage *image, const QSize &newSize)
-{
-	if (image->size() == newSize)
-		return;
-
-	QImage newImage(newSize, QImage::Format_RGB32);
-	newImage.fill(qRgb(255, 255, 255));
-	QPainter painter(&newImage);
-	painter.drawImage(QPoint(0, 0), *image);
-	*image = newImage;
-}
-
 void ImageViewer::displayImage(QImage *image)
 {
 	QGraphicsScene* scene = new QGraphicsScene();
 	QGraphicsView* view = ui.graphicsView;
-	QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(getLast()));
+	QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*image));
 	QPixmap pixmap = QPixmap().fromImage(*image);
-	scene -> addPixmap(pixmap);
-	ui.graphicsView -> setScene(scene);
+	scene->addPixmap(pixmap);
+	ui.graphicsView->setScene(scene);
 	update();
+}
+
+QImage ImageViewer::getResized(QImage *image, const QSize &newSize, bool keepAspectRatio)
+{
+	QImage resized = image->scaled(newSize, (keepAspectRatio ? Qt::KeepAspectRatio : Qt::IgnoreAspectRatio), Qt::FastTransformation);
+	return resized;
 }
 
 void ImageViewer::resizeEvent(QResizeEvent *event)
 {
 	QWidget::resizeEvent(event);
+
+	if (currentImg != NULL) {
+		QSize viewerSize = ui.graphicsView->size();
+		QImage displayedImg = getResized(currentImg, viewerSize);
+		displayImage(&displayedImg);
+	}	
 }
 
 bool ImageViewer::openImage(const QString &fileName)
@@ -35,15 +35,17 @@ bool ImageViewer::openImage(const QString &fileName)
 		return false;
 
 	images.push_back(loadedImage);
-	displayImage(&getLast());
+	QSize viewerSize = ui.graphicsView->size();
+	currentImg = &getLast();
+	QImage displayedImg = getResized(currentImg, viewerSize);
+	displayImage(&displayedImg);
 	
 	return true;
 }
 
 bool ImageViewer::saveImage(const QString &fileName)
 {
-	QImage visibleImage = getLast();
-	resizeImage(&visibleImage, size());
+	QImage visibleImage = *currentImg;;
 
 	if (visibleImage.save(fileName, "png")) {
 		return true;
@@ -83,7 +85,10 @@ void ImageViewer::ActionOpenImage()
 void ImageViewer::ActionLoadImage()
 {
 	int id = ui.FileListWidget->currentRow();
-	displayImage(&getImage(id));
+	currentImg = &getImage(id);
+	QSize viewerSize = ui.graphicsView->size();
+	QImage displayedImg = getResized(currentImg, viewerSize);
+	displayImage(&displayedImg);
 }
 
 void ImageViewer::ActionSaveImage()
