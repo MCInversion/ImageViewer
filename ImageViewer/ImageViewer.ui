@@ -33,6 +33,16 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="checkBox">
+          <property name="text">
+           <string>Keep Aspect Ratio</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QListWidget" name="listWidget2">
           <property name="maximumSize">
            <size>
@@ -155,5 +165,6 @@
   <slot>ActionOpenImage()</slot>
   <slot>ActionSaveImage()</slot>
   <slot>ActionLoadImage()</slot>
+  <slot>ActionRemoveImage()</slot>
  </slots>
 </ui>

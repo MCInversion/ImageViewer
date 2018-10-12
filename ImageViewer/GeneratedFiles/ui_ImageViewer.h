@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
@@ -39,6 +40,7 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QVBoxLayout *verticalLayout;
     QListWidget *FileListWidget;
+    QCheckBox *checkBox;
     QListWidget *listWidget2;
     QGraphicsView *graphicsView;
     QMenuBar *menuBar;
@@ -75,6 +77,12 @@ public:
         FileListWidget->setMaximumSize(QSize(250, 800));
 
         verticalLayout->addWidget(FileListWidget);
+
+        checkBox = new QCheckBox(centralWidget);
+        checkBox->setObjectName(QStringLiteral("checkBox"));
+        checkBox->setChecked(true);
+
+        verticalLayout->addWidget(checkBox);
 
         listWidget2 = new QListWidget(centralWidget);
         listWidget2->setObjectName(QStringLiteral("listWidget2"));
@@ -128,6 +136,7 @@ public:
 #endif // QT_NO_TOOLTIP
         actionSave_Image->setText(QApplication::translate("ImageViewerClass", "Save Image", Q_NULLPTR));
         actionLoadImage->setText(QApplication::translate("ImageViewerClass", "LoadImage", Q_NULLPTR));
+        checkBox->setText(QApplication::translate("ImageViewerClass", "Keep Aspect Ratio", Q_NULLPTR));
         menuFile->setTitle(QApplication::translate("ImageViewerClass", "File", Q_NULLPTR));
     } // retranslateUi
 

@@ -3,7 +3,6 @@
 void ImageViewer::displayImage(QImage *image)
 {
 	QGraphicsScene* scene = new QGraphicsScene();
-	QGraphicsView* view = ui.graphicsView;
 	QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*image));
 	QPixmap pixmap = QPixmap().fromImage(*image);
 	scene->addPixmap(pixmap);
@@ -23,7 +22,8 @@ void ImageViewer::resizeEvent(QResizeEvent *event)
 	if (currentImgId > -1) {
 		QSize viewerSize = ui.graphicsView->size();
 		QImage displayedImg(images.at(currentImgId));
-		displayedImg = getResized(&displayedImg, viewerSize);
+		bool keepAspectRatio = ui.checkBox->isChecked();
+		displayedImg = getResized(&displayedImg, viewerSize, keepAspectRatio);
 		displayImage(&displayedImg);
 	}	
 }
@@ -37,7 +37,8 @@ bool ImageViewer::openImage(const QString &fileName)
 	images.push_back(loadedImage);
 	QSize viewerSize = ui.graphicsView->size();
 	currentImgId = images.size() - 1;
-	QImage displayedImg = getResized(&getLast(), viewerSize);
+	bool keepAspectRatio = ui.checkBox->isChecked();
+	QImage displayedImg = getResized(&getLast(), viewerSize, keepAspectRatio);
 	displayImage(&displayedImg);
 	
 	return true;
@@ -69,6 +70,7 @@ ImageViewer::ImageViewer(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
+	installEventFilter(this);
 }
 
 void ImageViewer::ActionOpenImage()
@@ -86,7 +88,8 @@ void ImageViewer::ActionLoadImage()
 {
 	currentImgId = ui.FileListWidget->currentRow();
 	QSize viewerSize = ui.graphicsView->size();
-	QImage displayedImg = getResized(&getImage(currentImgId), viewerSize);
+	bool keepAspectRatio = ui.checkBox->isChecked();
+	QImage displayedImg = getResized(&getImage(currentImgId), viewerSize, keepAspectRatio);
 	displayImage(&displayedImg);
 }
 
@@ -99,4 +102,72 @@ void ImageViewer::ActionSaveImage()
 	else {
 		saveImage(fileName);
 	}
+}
+
+/*
+void ImageViewer::keyPressEvent(QKeyEvent *event)
+{
+	switch (event->key())
+	{
+	case Qt::Key_Return:
+	case Qt::Key_Enter:
+		qDebug() << "Enter";
+		break;
+	case Qt::Key_Escape:
+		qDebug() << "Escape";
+		break;
+	case Qt::Key_Insert:
+		qDebug() << "Insert";
+		break;
+	case Qt::Key_Delete:
+		qDebug() << "Delete";
+		break;
+	default:
+		qDebug() << "other" << event->key();
+		break;
+	}
+}*/
+
+void ImageViewer::clearViewer()
+{
+	ui.graphicsView-> setScene(new QGraphicsScene());
+}
+
+void ImageViewer::removeSelected()
+{
+	QList<QListWidgetItem*> selection = ui.FileListWidget->selectedItems();
+	if (!selection.isEmpty()) {
+		qDeleteAll(ui.FileListWidget->selectedItems());
+
+		if (images.size() > 1) {
+			QSize viewerSize = ui.graphicsView->size();
+			bool keepAspectRatio = ui.checkBox->isChecked();
+			QImage displayedImg = getResized(&getImage(0), viewerSize, keepAspectRatio);
+			displayImage(&displayedImg);
+			
+			currentImgId = 0;
+		}
+		else {
+			clearViewer();
+			images.removeAt(currentImgId);
+			currentImgId = -1;
+		}
+	}
+}
+
+bool ImageViewer::eventFilter(QObject *object, QEvent *event)
+{
+	if (event->type() == QEvent::KeyPress)
+	{
+		QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(event);
+		if (pKeyEvent->key() == Qt::Key_Delete)
+		{
+			if (ui.FileListWidget->hasFocus())
+			{
+				removeSelected();
+			}
+			return true;
+		}
+	}
+	return QWidget::eventFilter(object, event);
 }
