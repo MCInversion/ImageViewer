@@ -1,0 +1,1 @@
+RC_FILE = ImageViewer.rc
