@@ -29,5 +29,5 @@ protected:
 private:
 	Ui::ImageViewerClass ui;
 	std::vector<QImage> images;
-	QImage *currentImg = NULL;
+	int currentImgId = -1;
 };

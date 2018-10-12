@@ -13,17 +13,17 @@ void ImageViewer::displayImage(QImage *image)
 
 QImage ImageViewer::getResized(QImage *image, const QSize &newSize, bool keepAspectRatio)
 {
-	QImage resized = image->scaled(newSize, (keepAspectRatio ? Qt::KeepAspectRatio : Qt::IgnoreAspectRatio), Qt::FastTransformation);
-	return resized;
+	return image->scaled(newSize, (keepAspectRatio ? Qt::KeepAspectRatio : Qt::IgnoreAspectRatio), Qt::FastTransformation);
 }
 
 void ImageViewer::resizeEvent(QResizeEvent *event)
 {
 	QWidget::resizeEvent(event);
 
-	if (currentImg != NULL) {
+	if (currentImgId > -1) {
 		QSize viewerSize = ui.graphicsView->size();
-		QImage displayedImg = getResized(currentImg, viewerSize);
+		QImage displayedImg(images.at(currentImgId));
+		displayedImg = getResized(&displayedImg, viewerSize);
 		displayImage(&displayedImg);
 	}	
 }
@@ -36,8 +36,8 @@ bool ImageViewer::openImage(const QString &fileName)
 
 	images.push_back(loadedImage);
 	QSize viewerSize = ui.graphicsView->size();
-	currentImg = &getLast();
-	QImage displayedImg = getResized(currentImg, viewerSize);
+	currentImgId = images.size() - 1;
+	QImage displayedImg = getResized(&getLast(), viewerSize);
 	displayImage(&displayedImg);
 	
 	return true;
@@ -45,7 +45,7 @@ bool ImageViewer::openImage(const QString &fileName)
 
 bool ImageViewer::saveImage(const QString &fileName)
 {
-	QImage visibleImage = *currentImg;;
+	QImage visibleImage = getImage(currentImgId);
 
 	if (visibleImage.save(fileName, "png")) {
 		return true;
@@ -84,10 +84,9 @@ void ImageViewer::ActionOpenImage()
 
 void ImageViewer::ActionLoadImage()
 {
-	int id = ui.FileListWidget->currentRow();
-	currentImg = &getImage(id);
+	currentImgId = ui.FileListWidget->currentRow();
 	QSize viewerSize = ui.graphicsView->size();
-	QImage displayedImg = getResized(currentImg, viewerSize);
+	QImage displayedImg = getResized(&getImage(currentImgId), viewerSize);
 	displayImage(&displayedImg);
 }
 
