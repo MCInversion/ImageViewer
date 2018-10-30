@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <thread>
 #include <functional>
+#include "ImageViewer.h"
 
 class ImageFilter
 {
@@ -19,6 +20,7 @@ private:
 	QImage *resultImage = NULL;
 	float sigma = 10.;
 	float amount = 10.;
+	void kernelSum(QImage *targetImage, QImage *resultImage, int x, int y, int ix, int jx, int iy, int jy);
 public:
 	ImageFilter();
 	ImageFilter(QString type, float radius, float amount);
@@ -36,6 +38,9 @@ public:
 	QImage getResult(QImage *targetImage);
 	void applyBlur(QImage *targetImage);
 	void applySharpen(QImage *targetImage);
+
+	// threads
+	std::vector<std::thread> kernelThreads;
 };
 
 #endif // IMAGEFILTER_H

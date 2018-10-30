@@ -2,6 +2,33 @@
 
 
 
+void ImageFilter::kernelSum(QImage *targetImage, QImage *resultImage, int x, int y, int ix, int jx, int iy, int jy)
+{
+	int meanx = x;
+	int meany = y;
+
+	float sumR = 0.;
+	float sumG = 0.;
+	float sumB = 0.;
+	float wsum = 0.;
+	float weight;
+
+	for (int i = x - ix; i <= x + jx; i++) {
+		for (int j = y - iy; j <= y + jy; j++) {
+			weight = 1. / (2. * M_PI * sigma * sigma) * exp(-((meanx - i) * (meanx - i) + (meany - j) * (meany - j)) / (2. * sigma * sigma));
+
+			sumR += targetImage->pixelColor(i, j).red() * weight;
+			sumG += targetImage->pixelColor(i, j).green() * weight;
+			sumB += targetImage->pixelColor(i, j).blue() * weight;
+
+			wsum += weight;
+		}
+	}
+
+	QColor resultColor = QColor(((int)((sumG / wsum) * 255 + 0.5)), ((int)((sumG / wsum) * 255 + 0.5)), ((int)((sumG / wsum) * 255 + 0.5)));
+	resultImage->setPixelColor(QPoint(x, y), resultColor);
+}
+
 ImageFilter::ImageFilter()
 {
 }
@@ -59,7 +86,7 @@ void ImageFilter::applyBlur(QImage *targetImage)
 	int width = targetImage->width();
 
 	QImage::Format format = targetImage->format();
-	*resultImage = QImage(width, height, format);
+	resultImage = new QImage(width, height, format);
 
 	int signifRadius = ((int) 2.75 * sigma + 0.5);
 
@@ -90,23 +117,8 @@ void ImageFilter::applyBlur(QImage *targetImage)
 			}
 			else jy = signifRadius;
 
-			meanx = x;
-			meany = y;
-
-			for (i = x - ix; i <= x + jx; i++) {
-				for (j = y - iy; j <= y + jy; j++) {
-					weight = 1. / (2. * M_PI * sigma * sigma) * exp(-((meanx - i) * (meanx - i) + (meany - j) * (meany - j)) / (2. * sigma * sigma));
-
-					sumR += targetImage->pixelColor(i, j).red() * weight;
-					sumG += targetImage->pixelColor(i, j).green() * weight;
-					sumB += targetImage->pixelColor(i, j).blue() * weight;
-
-					wsum += weight;
-				}
-			}
-
-			QColor resultColor = QColor(((int)((sumG / wsum) * 255 + 0.5)), ((int)((sumG / wsum) * 255 + 0.5)), ((int)((sumG / wsum) * 255 + 0.5)));
-			resultImage->setPixelColor(QPoint(x, y), resultColor);
+			std::thread kernelThread = std::thread(&ImageFilter::kernelSum, this, targetImage, resultImage, x, y, ix, jx, iy, jy);
+			kernelThread.join();
 		}
 	}
 }
