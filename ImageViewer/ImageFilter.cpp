@@ -142,11 +142,11 @@ QImage ImageFilter::getResult(QImage *targetImage)
 {
 	if (resultImage == NULL) {
 		if (type == "blur") {
-			std::thread blurThread(std::bind(&applyBlur, this), targetImage);
+			std::thread blurThread = std::thread(&ImageFilter::applyBlur, this, targetImage);
 			blurThread.join();
 		}
 		else if (type == "sharpen") {
-			std::thread sharpenThread(std::bind(&applySharpen, this), targetImage);
+			std::thread sharpenThread = std::thread(&ImageFilter::applySharpen, this, targetImage);
 			sharpenThread.join();
 		}
 	}

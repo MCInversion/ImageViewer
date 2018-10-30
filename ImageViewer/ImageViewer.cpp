@@ -124,7 +124,8 @@ void ImageViewer::ActionBlur()
 	float amount = ((float)ui.amountSlider->value());
 	ImageFilter blur = ImageFilter("blur", radius, amount);
 	QImage target = getImage(currentImgId);
-	blur.getResult(&target);
+	QImage result = blur.getResult(&target);
+	displayImage(&result);
 }
 
 void ImageViewer::ActionSharpen()
@@ -133,7 +134,8 @@ void ImageViewer::ActionSharpen()
 	float amount = ((float)ui.amountSlider->value());
 	ImageFilter sharpen = ImageFilter("sharpen", radius, amount);
 	QImage target = getImage(currentImgId);
-	sharpen.getResult(&target);
+	QImage result = sharpen.getResult(&target);
+	displayImage(&result);
 }
 
 /*
