@@ -5,7 +5,9 @@
 #include <QGraphicsPixmapItem>
 #include "qlayoutitem.h"
 #include "ui_ImageViewer.h"
+#include "ImageFilter.h"
 #include <vector>
+#include <thread>
 #include <QDebug>
 #include <QtGui>
 
@@ -19,6 +21,10 @@ public slots:
 	void ActionOpenImage();
 	void ActionLoadImage();
 	void ActionSaveImage();
+
+	void ActionChangeRadius();
+	void ActionChangeAmount();
+
 	void ActionBlur();
 	void ActionSharpen();
 	QImage getImage(int i);

@@ -104,14 +104,36 @@ void ImageViewer::ActionSaveImage()
 	}
 }
 
+void ImageViewer::ActionChangeRadius()
+{
+	int value = ui.radiusSlider->value();
+	QString display = QString::number(value) + QString(" px");
+	ui.radiusLabel->setText(display);
+}
+
+void ImageViewer::ActionChangeAmount()
+{
+	int value = ui.amountSlider->value();
+	QString display = QString::number(value) + QString(" %");
+	ui.amountLabel->setText(display);
+}
+
 void ImageViewer::ActionBlur()
 {
-
+	float radius = ((float)ui.radiusSlider->value());
+	float amount = ((float)ui.amountSlider->value());
+	ImageFilter blur = ImageFilter("blur", radius, amount);
+	QImage target = getImage(currentImgId);
+	blur.getResult(&target);
 }
 
 void ImageViewer::ActionSharpen()
 {
-
+	float radius = ((float)ui.radiusSlider->value());
+	float amount = ((float)ui.amountSlider->value());
+	ImageFilter sharpen = ImageFilter("sharpen", radius, amount);
+	QImage target = getImage(currentImgId);
+	sharpen.getResult(&target);
 }
 
 /*

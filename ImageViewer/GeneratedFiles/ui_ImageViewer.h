@@ -20,10 +20,12 @@
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
@@ -50,6 +52,14 @@ public:
     QVBoxLayout *verticalLayout_2;
     QCheckBox *checkBox_2;
     QCheckBox *checkBox_3;
+    QHBoxLayout *horizontalLayout;
+    QLabel *label;
+    QSlider *radiusSlider;
+    QLabel *radiusLabel;
+    QHBoxLayout *horizontalLayout_3;
+    QLabel *label_3;
+    QSlider *amountSlider;
+    QLabel *amountLabel;
     QFrame *line;
     QGraphicsView *graphicsView;
     QMenuBar *menuBar;
@@ -120,6 +130,54 @@ public:
 
         verticalLayout_2->addWidget(checkBox_3);
 
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
+        label = new QLabel(verticalLayoutWidget);
+        label->setObjectName(QStringLiteral("label"));
+
+        horizontalLayout->addWidget(label);
+
+        radiusSlider = new QSlider(verticalLayoutWidget);
+        radiusSlider->setObjectName(QStringLiteral("radiusSlider"));
+        radiusSlider->setMaximum(300);
+        radiusSlider->setValue(10);
+        radiusSlider->setOrientation(Qt::Horizontal);
+
+        horizontalLayout->addWidget(radiusSlider);
+
+        radiusLabel = new QLabel(verticalLayoutWidget);
+        radiusLabel->setObjectName(QStringLiteral("radiusLabel"));
+
+        horizontalLayout->addWidget(radiusLabel);
+
+
+        verticalLayout_2->addLayout(horizontalLayout);
+
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setSpacing(6);
+        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        label_3 = new QLabel(verticalLayoutWidget);
+        label_3->setObjectName(QStringLiteral("label_3"));
+
+        horizontalLayout_3->addWidget(label_3);
+
+        amountSlider = new QSlider(verticalLayoutWidget);
+        amountSlider->setObjectName(QStringLiteral("amountSlider"));
+        amountSlider->setEnabled(true);
+        amountSlider->setMaximum(100);
+        amountSlider->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_3->addWidget(amountSlider);
+
+        amountLabel = new QLabel(verticalLayoutWidget);
+        amountLabel->setObjectName(QStringLiteral("amountLabel"));
+
+        horizontalLayout_3->addWidget(amountLabel);
+
+
+        verticalLayout_2->addLayout(horizontalLayout_3);
+
 
         verticalLayout->addWidget(groupBox);
 
@@ -168,6 +226,10 @@ public:
         QObject::connect(actionSave_Image, SIGNAL(triggered()), ImageViewerClass, SLOT(ActionSaveImage()));
         QObject::connect(FileListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), ImageViewerClass, SLOT(ActionLoadImage()));
         QObject::connect(actionOpen_Image, SIGNAL(triggered()), ImageViewerClass, SLOT(ActionOpenImage()));
+        QObject::connect(actionBlur, SIGNAL(triggered()), ImageViewerClass, SLOT(ActionBlur()));
+        QObject::connect(radiusSlider, SIGNAL(sliderMoved(int)), ImageViewerClass, SLOT(ActionChangeRadius()));
+        QObject::connect(actionSharpen, SIGNAL(triggered()), ImageViewerClass, SLOT(ActionSharpen()));
+        QObject::connect(amountSlider, SIGNAL(sliderMoved(int)), ImageViewerClass, SLOT(ActionChangeAmount()));
 
         QMetaObject::connectSlotsByName(ImageViewerClass);
     } // setupUi
@@ -187,6 +249,10 @@ public:
         groupBox->setTitle(QApplication::translate("ImageViewerClass", "Applied filters:", Q_NULLPTR));
         checkBox_2->setText(QApplication::translate("ImageViewerClass", "Blur", Q_NULLPTR));
         checkBox_3->setText(QApplication::translate("ImageViewerClass", "Sharpen", Q_NULLPTR));
+        label->setText(QApplication::translate("ImageViewerClass", "radius: ", Q_NULLPTR));
+        radiusLabel->setText(QApplication::translate("ImageViewerClass", "10 px", Q_NULLPTR));
+        label_3->setText(QApplication::translate("ImageViewerClass", "amount: ", Q_NULLPTR));
+        amountLabel->setText(QApplication::translate("ImageViewerClass", "10 %", Q_NULLPTR));
         menuFile->setTitle(QApplication::translate("ImageViewerClass", "File", Q_NULLPTR));
         menuFilter->setTitle(QApplication::translate("ImageViewerClass", "Filter", Q_NULLPTR));
     } // retranslateUi

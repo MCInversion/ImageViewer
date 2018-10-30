@@ -6,10 +6,11 @@ ImageFilter::ImageFilter()
 {
 }
 
-ImageFilter::ImageFilter(QString type)
+ImageFilter::ImageFilter(QString type, float radius, float amount)
 {
-	sigma = 10.;
+	sigma = radius;
 	this->type = type;
+	this->amount = amount;
 }
 
 
@@ -25,19 +26,6 @@ QString ImageFilter::getType()
 void ImageFilter::setType(QString type)
 {
 	this->type = type;
-}
-
-QImage ImageFilter::getResult(QImage *targetImage)
-{
-	if (resultImage == NULL) {
-		if (type == "blur") {
-			applyBlur(targetImage);
-		}
-		else if (type == "sharpen") {
-			applySharpen(targetImage);
-		}
-	}
-	return *resultImage;
 }
 
 float ImageFilter::Sigma()
@@ -81,7 +69,7 @@ void ImageFilter::applyBlur(QImage *targetImage)
 			sumR = 0.0, sumG = 0.0, sumB = 0.0;
 			wsum = 0.0;
 
-			//Position correction at the edges
+			// kernel correction at the edges
 			if (x - signifRadius < 0) {
 				ix = x;
 			}
@@ -139,9 +127,28 @@ void ImageFilter::applySharpen(QImage *targetImage)
 			greenF = ((float)sharpenedImage.pixelColor(x, y).green() + amount * (sharpenedImage.pixelColor(x, y).green() - targetImage->pixelColor(x, y).green()));
 			blueF = ((float)sharpenedImage.pixelColor(x, y).blue() + amount * (sharpenedImage.pixelColor(x, y).blue() - targetImage->pixelColor(x, y).blue()));
 			
+			redF = std::max((float)0., redF);
+			greenF = std::max((float)0., greenF);
+			blueF = std::max((float)0., blueF);
+
 			QColor resultColor = QColor(((int)redF + 0.5), ((int)greenF + 0.5), ((int)blueF + 0.5));
 			sharpenedImage.setPixelColor(QPoint(x, y), resultColor);
 		}
 	}
 	*targetImage = sharpenedImage;
+}
+
+QImage ImageFilter::getResult(QImage *targetImage)
+{
+	if (resultImage == NULL) {
+		if (type == "blur") {
+			std::thread blurThread(std::bind(&applyBlur, this), targetImage);
+			blurThread.join();
+		}
+		else if (type == "sharpen") {
+			std::thread sharpenThread(std::bind(&applySharpen, this), targetImage);
+			sharpenThread.join();
+		}
+	}
+	return *resultImage;
 }

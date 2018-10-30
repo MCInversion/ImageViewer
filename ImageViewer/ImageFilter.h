@@ -8,6 +8,9 @@
 #include <QGraphicsPixmapItem>
 #include <vector>
 #include <cstdlib>
+#include <algorithm>
+#include <thread>
+#include <functional>
 
 class ImageFilter
 {
@@ -18,7 +21,7 @@ private:
 	float amount = 10.;
 public:
 	ImageFilter();
-	ImageFilter(QString type);
+	ImageFilter(QString type, float radius, float amount);
 	~ImageFilter();
 
 	void setType(QString type);
