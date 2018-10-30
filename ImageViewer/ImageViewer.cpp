@@ -104,6 +104,16 @@ void ImageViewer::ActionSaveImage()
 	}
 }
 
+void ImageViewer::ActionBlur()
+{
+
+}
+
+void ImageViewer::ActionSharpen()
+{
+
+}
+
 /*
 void ImageViewer::keyPressEvent(QKeyEvent *event)
 {

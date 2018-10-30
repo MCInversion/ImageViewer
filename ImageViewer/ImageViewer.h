@@ -19,6 +19,8 @@ public slots:
 	void ActionOpenImage();
 	void ActionLoadImage();
 	void ActionSaveImage();
+	void ActionBlur();
+	void ActionSharpen();
 	QImage getImage(int i);
 	QImage getLast();
 protected:

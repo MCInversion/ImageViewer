@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
-    <height>631</height>
+    <width>681</width>
+    <height>787</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,7 @@
          <widget class="QListWidget" name="FileListWidget">
           <property name="maximumSize">
            <size>
-            <width>250</width>
+            <width>320</width>
             <height>800</height>
            </size>
           </property>
@@ -43,12 +43,54 @@
          </widget>
         </item>
         <item>
-         <widget class="QListWidget" name="listWidget2">
+         <widget class="QGroupBox" name="groupBox">
+          <property name="minimumSize">
+           <size>
+            <width>315</width>
+            <height>150</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
-            <width>250</width>
-            <height>500</height>
+            <width>315</width>
+            <height>150</height>
            </size>
+          </property>
+          <property name="title">
+           <string>Applied filters:</string>
+          </property>
+          <widget class="QWidget" name="verticalLayoutWidget">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>20</y>
+             <width>311</width>
+             <height>121</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QCheckBox" name="checkBox_2">
+              <property name="text">
+               <string>Blur</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_3">
+              <property name="text">
+               <string>Sharpen</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -66,7 +108,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>667</width>
+     <width>681</width>
      <height>26</height>
     </rect>
    </property>
@@ -77,7 +119,15 @@
     <addaction name="actionOpen_Image"/>
     <addaction name="actionSave_Image"/>
    </widget>
+   <widget class="QMenu" name="menuFilter">
+    <property name="title">
+     <string>Filter</string>
+    </property>
+    <addaction name="actionBlur"/>
+    <addaction name="actionSharpen"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuFilter"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -104,6 +154,16 @@
   <action name="actionLoadImage">
    <property name="text">
     <string>LoadImage</string>
+   </property>
+  </action>
+  <action name="actionBlur">
+   <property name="text">
+    <string>Blur</string>
+   </property>
+  </action>
+  <action name="actionSharpen">
+   <property name="text">
+    <string>Sharpen</string>
    </property>
   </action>
  </widget>
