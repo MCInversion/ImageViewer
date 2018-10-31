@@ -17,24 +17,25 @@ class ImageFilter
 {
 private:
 	QString type;
-	QImage *resultImage = NULL;
-	float sigma = 10.;
-	float amount = 10.;
-	void kernelSum(QImage *targetImage, QImage *resultImage, int x, int y, int ix, int jx, int iy, int jy);
+	QImage resultImage;
+	QImage originalImage;
+	int radius = 10;
+	int amount = 10;
 public:
 	ImageFilter();
-	ImageFilter(QString type, float radius, float amount);
+	ImageFilter(QString type, int radius, int amount);
 	~ImageFilter();
 
 	void setType(QString type);
-	void setSigma(float sigma);
-	void setAmound(float amount);
+	void setRadius(int radius);
+	void setAmount(int amount);
 
 	QString getType();
-	float Sigma();
-	float Amount();
+	int Radius();
+	int Amount();
 
 	// procedures
+	void kernelSum(QImage *targetImage, QImage resultImage, int x, int y, int ix, int jx, int iy, int jy);
 	QImage getResult(QImage *targetImage);
 	void applyBlur(QImage *targetImage);
 	void applySharpen(QImage *targetImage);

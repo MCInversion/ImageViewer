@@ -15,6 +15,12 @@ QImage ImageViewer::getResized(QImage *image, const QSize &newSize, bool keepAsp
 	return image->scaled(newSize, (keepAspectRatio ? Qt::KeepAspectRatio : Qt::IgnoreAspectRatio), Qt::FastTransformation);
 }
 
+void ImageViewer::replaceImageAt(QImage *replacement, int i)
+{
+	images.replace(i, *replacement);
+	displayImage(&getImage(i));
+}
+
 void ImageViewer::resizeEvent(QResizeEvent *event)
 {
 	QWidget::resizeEvent(event);
@@ -120,22 +126,28 @@ void ImageViewer::ActionChangeAmount()
 
 void ImageViewer::ActionBlur()
 {
-	float radius = ((float)ui.radiusSlider->value());
-	float amount = ((float)ui.amountSlider->value());
-	ImageFilter blur = ImageFilter("blur", radius, amount);
-	QImage target = getImage(currentImgId);
-	QImage result = blur.getResult(&target);
-	displayImage(&result);
+	if (currentImgId != -1) {
+		float radius = ((float)ui.radiusSlider->value());
+		float amount = ((float)ui.amountSlider->value());
+		ImageFilter blur = ImageFilter("blur", radius, amount);
+		QImage target = getImage(currentImgId);
+		QImage result = blur.getResult(&target);
+	
+		replaceImageAt(&result, currentImgId);
+	}	
 }
 
 void ImageViewer::ActionSharpen()
 {
-	float radius = ((float)ui.radiusSlider->value());
-	float amount = ((float)ui.amountSlider->value());
-	ImageFilter sharpen = ImageFilter("sharpen", radius, amount);
-	QImage target = getImage(currentImgId);
-	QImage result = sharpen.getResult(&target);
-	displayImage(&result);
+	if (currentImgId != -1) {
+		float radius = ((float)ui.radiusSlider->value());
+		float amount = ((float)ui.amountSlider->value());
+		ImageFilter sharpen = ImageFilter("sharpen", radius, amount);
+		QImage target = getImage(currentImgId);
+		QImage result = sharpen.getResult(&target);
+
+		replaceImageAt(&result, currentImgId);
+	}
 }
 
 /*

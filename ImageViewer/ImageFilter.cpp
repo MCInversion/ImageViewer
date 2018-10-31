@@ -2,7 +2,7 @@
 
 
 
-void ImageFilter::kernelSum(QImage *targetImage, QImage *resultImage, int x, int y, int ix, int jx, int iy, int jy)
+void ImageFilter::kernelSum(QImage *targetImage, QImage resultImage, int x, int y, int ix, int jx, int iy, int jy)
 {
 	int meanx = x;
 	int meany = y;
@@ -12,6 +12,8 @@ void ImageFilter::kernelSum(QImage *targetImage, QImage *resultImage, int x, int
 	float sumB = 0.;
 	float wsum = 0.;
 	float weight;
+
+	float sigma = radius / 2.75;
 
 	for (int i = x - ix; i <= x + jx; i++) {
 		for (int j = y - iy; j <= y + jy; j++) {
@@ -26,16 +28,16 @@ void ImageFilter::kernelSum(QImage *targetImage, QImage *resultImage, int x, int
 	}
 
 	QColor resultColor = QColor(((int)((sumG / wsum) * 255 + 0.5)), ((int)((sumG / wsum) * 255 + 0.5)), ((int)((sumG / wsum) * 255 + 0.5)));
-	resultImage->setPixelColor(QPoint(x, y), resultColor);
+	resultImage.setPixelColor(QPoint(x, y), resultColor);
 }
 
 ImageFilter::ImageFilter()
 {
 }
 
-ImageFilter::ImageFilter(QString type, float radius, float amount)
+ImageFilter::ImageFilter(QString type, int radius, int amount)
 {
-	sigma = radius;
+	this->radius = radius;
 	this->type = type;
 	this->amount = amount;
 }
@@ -55,70 +57,65 @@ void ImageFilter::setType(QString type)
 	this->type = type;
 }
 
-float ImageFilter::Sigma()
+int ImageFilter::Radius()
 {
-	return sigma;
+	return radius;
 }
 
-float ImageFilter::Amount()
+int ImageFilter::Amount()
 {
 	return amount;
 }
 
-void ImageFilter::setSigma(float sigma)
+void ImageFilter::setRadius(int radius)
 {
-	this->sigma = sigma;
+	this->radius = radius;
 }
 
-void ImageFilter::setAmound(float amount)
+void ImageFilter::setAmount(int amount)
 {
 	this->amount = amount;
 }
 
 void ImageFilter::applyBlur(QImage *targetImage)
 {
-	int i, j, x, y, ix, iy, jx, jy, meanx, meany;
-	float sumR, sumG, sumB;
-	float wsum;
-	float weight;
+	if (targetImage->isNull()) {
+		return;
+	}	
+
+	int x, y, ix, iy, jx, jy;
 
 	int height = targetImage->height();
 	int width = targetImage->width();
 
 	QImage::Format format = targetImage->format();
-	resultImage = new QImage(width, height, format);
-
-	int signifRadius = ((int) 2.75 * sigma + 0.5);
+	resultImage = QImage(width, height, format);
+	resultImage.fill(QColor(0, 0, 0));
 
 	for (x = 0; x < width; x++) {
 		for (y = 0; y < height; y++) {
-
-			sumR = 0.0, sumG = 0.0, sumB = 0.0;
-			wsum = 0.0;
-
 			// kernel correction at the edges
-			if (x - signifRadius < 0) {
+			if (x - radius < 0) {
 				ix = x;
 			}
-			else ix = signifRadius;
+			else ix = radius;
 
-			if (y - signifRadius < 0) {
+			if (y - radius < 0) {
 				iy = y;
 			}
-			else iy = signifRadius;
+			else iy = radius;
 
-			if (x + signifRadius > width - 1) {
+			if (x + radius > width - 1) {
 				jx = width - 1 - x;
 			}
-			else jx = signifRadius;
+			else jx = radius;
 
-			if (y + signifRadius > height - 1) {
+			if (y + radius > height - 1) {
 				jy = height - 1 - y;
 			}
-			else jy = signifRadius;
+			else jy = radius;
 
-			std::thread kernelThread = std::thread(&ImageFilter::kernelSum, this, targetImage, resultImage, x, y, ix, jx, iy, jy);
-			kernelThread.join();
+			kernelSum(targetImage, resultImage, x, y, ix, jx, iy, jy);
 		}
 	}
 }
@@ -152,15 +149,13 @@ void ImageFilter::applySharpen(QImage *targetImage)
 
 QImage ImageFilter::getResult(QImage *targetImage)
 {
-	if (resultImage == NULL) {
+	if (resultImage.isNull()) {
 		if (type == "blur") {
-			std::thread blurThread = std::thread(&ImageFilter::applyBlur, this, targetImage);
-			blurThread.join();
+			applyBlur(targetImage);
 		}
 		else if (type == "sharpen") {
-			std::thread sharpenThread = std::thread(&ImageFilter::applySharpen, this, targetImage);
-			sharpenThread.join();
+			applySharpen(targetImage);
 		}
 	}
-	return *resultImage;
+	return resultImage;
 }

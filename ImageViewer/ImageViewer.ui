@@ -139,7 +139,7 @@
               <item>
                <widget class="QLabel" name="amountLabel">
                 <property name="text">
-                 <string>10 %</string>
+                 <string>1 %</string>
                 </property>
                </widget>
               </item>
