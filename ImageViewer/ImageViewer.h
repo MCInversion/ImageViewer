@@ -8,6 +8,7 @@
 #include "ImageFilter.h"
 #include <vector>
 #include <thread>
+#include <future>
 #include <QDebug>
 #include <QtGui>
 

@@ -8,8 +8,10 @@
 #include <QGraphicsPixmapItem>
 #include <vector>
 #include <cstdlib>
+#include <iostream>
 #include <algorithm>
 #include <thread>
+#include <future>
 #include <functional>
 #include "ImageViewer.h"
 
@@ -21,6 +23,7 @@ private:
 	QImage originalImage;
 	int radius = 10;
 	int amount = 10;
+	bool finished = false;
 public:
 	ImageFilter();
 	ImageFilter(QString type, int radius, int amount);
@@ -29,6 +32,8 @@ public:
 	void setType(QString type);
 	void setRadius(int radius);
 	void setAmount(int amount);
+	void setFinished(bool value);
+	bool isFinished();
 
 	QString getType();
 	int Radius();
@@ -39,9 +44,6 @@ public:
 	QImage getResult(QImage *targetImage);
 	void applyBlur(QImage *targetImage);
 	void applySharpen(QImage *targetImage);
-
-	// threads
-	std::vector<std::thread> kernelThreads;
 };
 
 #endif // IMAGEFILTER_H

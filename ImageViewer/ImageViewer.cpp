@@ -127,12 +127,13 @@ void ImageViewer::ActionChangeAmount()
 void ImageViewer::ActionBlur()
 {
 	if (currentImgId != -1) {
-		float radius = ((float)ui.radiusSlider->value());
-		float amount = ((float)ui.amountSlider->value());
-		ImageFilter blur = ImageFilter("blur", radius, amount);
+		int radius = ui.radiusSlider->value();
+		int amount = ui.amountSlider->value();
 		QImage target = getImage(currentImgId);
+		ImageFilter blur("blur", radius, amount);
+
 		QImage result = blur.getResult(&target);
-	
+
 		replaceImageAt(&result, currentImgId);
 	}	
 }
@@ -140,10 +141,11 @@ void ImageViewer::ActionBlur()
 void ImageViewer::ActionSharpen()
 {
 	if (currentImgId != -1) {
-		float radius = ((float)ui.radiusSlider->value());
-		float amount = ((float)ui.amountSlider->value());
-		ImageFilter sharpen = ImageFilter("sharpen", radius, amount);
+		int radius = ui.radiusSlider->value();
+		int amount = ui.amountSlider->value();
 		QImage target = getImage(currentImgId);
+		ImageFilter sharpen("sharpen", radius, amount);
+
 		QImage result = sharpen.getResult(&target);
 
 		replaceImageAt(&result, currentImgId);

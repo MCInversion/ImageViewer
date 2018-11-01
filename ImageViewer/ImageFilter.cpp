@@ -81,6 +81,16 @@ void ImageFilter::setAmount(int amount)
 	this->amount = amount;
 }
 
+void ImageFilter::setFinished(bool value)
+{
+	finished = value;
+}
+
+bool ImageFilter::isFinished()
+{
+	return finished;
+}
+
 void ImageFilter::applyBlur(QImage *targetImage)
 {
 	if (targetImage->isNull()) {
@@ -122,33 +132,35 @@ void ImageFilter::applyBlur(QImage *targetImage)
 			kernelSum(*targetImage, resultImage, x, y, ix, jx, iy, jy);
 		}
 	}
+	setFinished(true);
 }
 
 void ImageFilter::applySharpen(QImage *targetImage)
 {
-	QImage sharpenedImage = QImage(*targetImage);
-	applyBlur(targetImage);
+	if (amount > 0) {
+		applyBlur(targetImage);
 	
-	int height = targetImage->height();
-	int width = targetImage->width();
+		int height = resultImage.height();
+		int width = resultImage.width();
 
-	float redF, greenF, blueF;
+		float redF, greenF, blueF;
 
-	for (int x = 0; x < width; x++) {
-		for (int y = 0; y < height; x++) {
-			redF = ((float)sharpenedImage.pixelColor(x, y).red() + amount * (sharpenedImage.pixelColor(x, y).red() - targetImage->pixelColor(x, y).red()));
-			greenF = ((float)sharpenedImage.pixelColor(x, y).green() + amount * (sharpenedImage.pixelColor(x, y).green() - targetImage->pixelColor(x, y).green()));
-			blueF = ((float)sharpenedImage.pixelColor(x, y).blue() + amount * (sharpenedImage.pixelColor(x, y).blue() - targetImage->pixelColor(x, y).blue()));
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				redF = ((float)(targetImage->pixelColor(x, y).red() + amount * (targetImage->pixelColor(x, y).red() - resultImage.pixelColor(x, y).red())));
+				greenF = ((float)(targetImage->pixelColor(x, y).green() + amount * (targetImage->pixelColor(x, y).green() - resultImage.pixelColor(x, y).green())));
+				blueF = ((float)(targetImage->pixelColor(x, y).blue() + amount * (targetImage->pixelColor(x, y).blue() - resultImage.pixelColor(x, y).blue())));
 			
-			redF = std::max((float)0., redF);
-			greenF = std::max((float)0., greenF);
-			blueF = std::max((float)0., blueF);
+				redF = std::max((float)0., std::min(redF, (float)255.));
+				greenF = std::max((float)0., std::min(greenF, (float)255.));
+				blueF = std::max((float)0., std::min(blueF, (float)255.));
 
-			QColor resultColor = QColor(((int)redF + 0.5), ((int)greenF + 0.5), ((int)blueF + 0.5));
-			sharpenedImage.setPixelColor(QPoint(x, y), resultColor);
+				QColor resultColor = QColor(((int)redF + 0.5), ((int)greenF + 0.5), ((int)blueF + 0.5));
+				resultImage.setPixelColor(QPoint(x, y), resultColor);
+			}
 		}
+		setFinished(true);
 	}
-	*targetImage = sharpenedImage;
 }
 
 QImage ImageFilter::getResult(QImage *targetImage)

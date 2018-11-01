@@ -166,6 +166,7 @@ public:
         amountSlider->setObjectName(QStringLiteral("amountSlider"));
         amountSlider->setEnabled(true);
         amountSlider->setMaximum(100);
+        amountSlider->setValue(10);
         amountSlider->setOrientation(Qt::Horizontal);
 
         horizontalLayout_3->addWidget(amountSlider);
@@ -252,7 +253,7 @@ public:
         label->setText(QApplication::translate("ImageViewerClass", "radius: ", Q_NULLPTR));
         radiusLabel->setText(QApplication::translate("ImageViewerClass", "10 px", Q_NULLPTR));
         label_3->setText(QApplication::translate("ImageViewerClass", "amount: ", Q_NULLPTR));
-        amountLabel->setText(QApplication::translate("ImageViewerClass", "1 %", Q_NULLPTR));
+        amountLabel->setText(QApplication::translate("ImageViewerClass", "10 %", Q_NULLPTR));
         menuFile->setTitle(QApplication::translate("ImageViewerClass", "File", Q_NULLPTR));
         menuFilter->setTitle(QApplication::translate("ImageViewerClass", "Filter", Q_NULLPTR));
     } // retranslateUi
