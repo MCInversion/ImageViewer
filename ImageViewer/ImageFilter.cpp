@@ -2,7 +2,7 @@
 
 
 
-void ImageFilter::kernelSum(QImage *targetImage, QImage resultImage, int x, int y, int ix, int jx, int iy, int jy)
+void ImageFilter::kernelSum(QImage &targetImage, QImage &resultImage, int x, int y, int ix, int jx, int iy, int jy)
 {
 	int meanx = x;
 	int meany = y;
@@ -19,15 +19,19 @@ void ImageFilter::kernelSum(QImage *targetImage, QImage resultImage, int x, int 
 		for (int j = y - iy; j <= y + jy; j++) {
 			weight = 1. / (2. * M_PI * sigma * sigma) * exp(-((meanx - i) * (meanx - i) + (meany - j) * (meany - j)) / (2. * sigma * sigma));
 
-			sumR += targetImage->pixelColor(i, j).red() * weight;
-			sumG += targetImage->pixelColor(i, j).green() * weight;
-			sumB += targetImage->pixelColor(i, j).blue() * weight;
+			sumR += targetImage.pixelColor(i, j).red() / 255. * weight;
+			sumG += targetImage.pixelColor(i, j).green() / 255. * weight;
+			sumB += targetImage.pixelColor(i, j).blue() / 255. * weight;
 
 			wsum += weight;
 		}
 	}
 
-	QColor resultColor = QColor(((int)((sumG / wsum) * 255 + 0.5)), ((int)((sumG / wsum) * 255 + 0.5)), ((int)((sumG / wsum) * 255 + 0.5)));
+	int red = std::min(((int)((sumR / wsum) * 255 + 0.5)), 255);
+	int green = std::min(((int)((sumG / wsum) * 255 + 0.5)), 255);
+	int blue = std::min(((int)((sumB / wsum) * 255 + 0.5)), 255);
+
+	QColor resultColor = QColor(red, green, blue);
 	resultImage.setPixelColor(QPoint(x, y), resultColor);
 }
 
@@ -115,7 +119,7 @@ void ImageFilter::applyBlur(QImage *targetImage)
 			}
 			else jy = radius;
 
-			kernelSum(targetImage, resultImage, x, y, ix, jx, iy, jy);
+			kernelSum(*targetImage, resultImage, x, y, ix, jx, iy, jy);
 		}
 	}
 }

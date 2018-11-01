@@ -35,7 +35,7 @@ public:
 	int Amount();
 
 	// procedures
-	void kernelSum(QImage *targetImage, QImage resultImage, int x, int y, int ix, int jx, int iy, int jy);
+	void kernelSum(QImage &targetImage, QImage &resultImage, int x, int y, int ix, int jx, int iy, int jy);
 	QImage getResult(QImage *targetImage);
 	void applyBlur(QImage *targetImage);
 	void applySharpen(QImage *targetImage);
