@@ -42,6 +42,7 @@ private:
 	int currentImgId = -1;
 
 	QImage getResized(QImage *image, const QSize &newSize, bool keepAspectRatio = true);
+	void replaceImageAt(std::future<QImage>& futureReplacement, int i);
 	void replaceImageAt(QImage *replacement, int i);
 	bool openImage(const QString &fileName);
 	bool saveImage(const QString &fileName);

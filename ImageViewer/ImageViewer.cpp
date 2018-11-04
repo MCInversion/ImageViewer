@@ -15,6 +15,13 @@ QImage ImageViewer::getResized(QImage *image, const QSize &newSize, bool keepAsp
 	return image->scaled(newSize, (keepAspectRatio ? Qt::KeepAspectRatio : Qt::IgnoreAspectRatio), Qt::FastTransformation);
 }
 
+void ImageViewer::replaceImageAt(std::future<QImage>& futureReplacement, int i)
+{
+	QImage replacement = futureReplacement.get();
+	images.replace(i, replacement);
+	displayImage(&getImage(i));
+}
+
 void ImageViewer::replaceImageAt(QImage *replacement, int i)
 {
 	images.replace(i, *replacement);
@@ -135,9 +142,9 @@ void ImageViewer::ActionBlur()
 		std::cout << "main thread " << std::this_thread::get_id() << ": init " << std::endl;
 		QtConcurrent::run(&blur, &ImageFilter::applyBlur);
 
-		QThreadPool::globalInstance()->waitForDone();
+		QThreadPool::globalInstance()->waitForDone(); // waiting freezes the GUI
 		std::cout << "main thread " << std::this_thread::get_id() << ": finished " << std::endl;
-		QImage result = blur.getResultImg();
+		QImage result = blur.getBlurredImg();
 		replaceImageAt(&result, currentImgId);
 	}	
 }
@@ -153,9 +160,9 @@ void ImageViewer::ActionSharpen()
 		std::cout << "main thread " << std::this_thread::get_id() << ": init " << std::endl;
 		QtConcurrent::run(&sharpen, &ImageFilter::applySharpen);
 
-		QThreadPool::globalInstance()->waitForDone();
+		QThreadPool::globalInstance()->waitForDone(); // waiting freezes the GUI
 		std::cout << "main thread " << std::this_thread::get_id() << ": finished " << std::endl;
-		QImage result = sharpen.getResultImg();
+		QImage result = sharpen.getSharpenedImg();
 		replaceImageAt(&result, currentImgId);
 	}
 }

@@ -22,8 +22,9 @@ class ImageFilter
 {
 private:
 	QString type;
-	QImage* resultImage = NULL;
 	QImage* originalImage = NULL;
+	QImage* blurredImage = NULL;
+	QImage* sharpenedImage = NULL;
 	int radius = 10;
 	int amount = 10;
 	bool useHardwareConcurrency = false;
@@ -43,8 +44,9 @@ public:
 	int Amount();
 
 	// procedures
-	QRgb kernelSum(QPoint pixel);
-	QImage& getResultImg();
+	QRgb kernelSum(int x, int y);
+	QImage& getBlurredImg();
+	QImage& getSharpenedImg();
 	void applyBlur();
 	void applyBlur(int from, int to);
 	void applySharpen();

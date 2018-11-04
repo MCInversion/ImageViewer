@@ -1,10 +1,7 @@
 #include "ImageFilter.h"
 
-
-
-QRgb ImageFilter::kernelSum(QPoint pixel)
+QRgb ImageFilter::kernelSum(int x, int y)
 {
-	int x = pixel.x(); int y = pixel.y();
 	int meanx = x;
 	int meany = y;
 	int ix, iy, jx, jy;
@@ -57,6 +54,16 @@ QRgb ImageFilter::kernelSum(QPoint pixel)
 	int blue = std::min(((int)((sumB / wsum) * 255 + 0.5)), 255);
 
 	return QColor(red, green, blue).rgb();
+}
+
+QImage& ImageFilter::getBlurredImg()
+{
+	return *blurredImage;
+}
+
+QImage& ImageFilter::getSharpenedImg()
+{
+	return *sharpenedImage;
 }
 
 ImageFilter::ImageFilter()
@@ -112,7 +119,11 @@ void ImageFilter::applyBlur()
 		return;
 	}
 
-	resultImage = new QImage(*originalImage);
+	int height = originalImage->height();
+	int width = originalImage->width();
+	QImage::Format format = originalImage->format();
+
+	blurredImage = new QImage(width, height, format);
 
 	int threadCount = QThreadPool::globalInstance()->maxThreadCount();
 	std::cout << "child thread " << std::this_thread::get_id() << ": initiating image processing on " << threadCount << " additional threads..." << std::endl;
@@ -129,7 +140,10 @@ void ImageFilter::applyBlur()
 			std::cout << "child thread " << std::this_thread::get_id() << ": y from " << i * step << " to " << originalImage->height() << std::endl;
 		}
 	}
+	std::cout << "..." << std::endl;
 }
+
+
 
 void ImageFilter::applyBlur(int from, int to)
 {
@@ -137,8 +151,8 @@ void ImageFilter::applyBlur(int from, int to)
 	for (int y = from; y < to; y++) {
 		for (int x = 0; x < originalImage->width(); x++) {
 			std::lock_guard<std::mutex> guard(_kernelMutex);
-			col = kernelSum(QPoint(x, y));
-			*((QRgb*)resultImage->scanLine(y) + x) = col;
+			col = kernelSum(x, y);
+			*((QRgb*)blurredImage->scanLine(y) + x) = col;
 		}		
 	}
 }
@@ -148,29 +162,27 @@ void ImageFilter::applySharpen()
 	if (amount > 0) {
 		applyBlur();
 	
-		int height = resultImage->height();
-		int width = resultImage->width();
+		int height = blurredImage->height();
+		int width = blurredImage->width();
+		QImage::Format format = blurredImage->format();
+
+		sharpenedImage = new QImage(width, height, format);
 
 		float redF, greenF, blueF;
 
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				redF = ((float)(originalImage->pixelColor(x, y).red() + amount * (originalImage->pixelColor(x, y).red() - resultImage->pixelColor(x, y).red())));
-				greenF = ((float)(originalImage->pixelColor(x, y).green() + amount * (originalImage->pixelColor(x, y).green() - resultImage->pixelColor(x, y).green())));
-				blueF = ((float)(originalImage->pixelColor(x, y).blue() + amount * (originalImage->pixelColor(x, y).blue() - resultImage->pixelColor(x, y).blue())));
+				redF = ((float)(originalImage->pixelColor(x, y).red() + amount * (originalImage->pixelColor(x, y).red() - blurredImage->pixelColor(x, y).red())));
+				greenF = ((float)(originalImage->pixelColor(x, y).green() + amount * (originalImage->pixelColor(x, y).green() - blurredImage->pixelColor(x, y).green())));
+				blueF = ((float)(originalImage->pixelColor(x, y).blue() + amount * (originalImage->pixelColor(x, y).blue() - blurredImage->pixelColor(x, y).blue())));
 			
 				redF = std::max((float)0., std::min(redF, (float)255.));
 				greenF = std::max((float)0., std::min(greenF, (float)255.));
 				blueF = std::max((float)0., std::min(blueF, (float)255.));
 
 				QColor resultColor = QColor(((int)redF + 0.5), ((int)greenF + 0.5), ((int)blueF + 0.5));
-				resultImage->setPixelColor(QPoint(x, y), resultColor);
+				sharpenedImage->setPixelColor(QPoint(x, y), resultColor);
 			}
 		}
 	}
-}
-
-QImage& ImageFilter::getResultImg()
-{
-	return *resultImage;
 }
