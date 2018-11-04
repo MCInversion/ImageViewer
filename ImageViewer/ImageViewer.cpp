@@ -130,10 +130,14 @@ void ImageViewer::ActionBlur()
 		int radius = ui.radiusSlider->value();
 		int amount = ui.amountSlider->value();
 		QImage target = getImage(currentImgId);
-		ImageFilter blur("blur", radius, amount);
+		ImageFilter blur("blur", radius, amount, &target);
 
-		QImage result = blur.getResult(&target);
+		std::cout << "main thread " << std::this_thread::get_id() << ": init " << std::endl;
+		QtConcurrent::run(&blur, &ImageFilter::applyBlur);
 
+		QThreadPool::globalInstance()->waitForDone();
+		std::cout << "main thread " << std::this_thread::get_id() << ": finished " << std::endl;
+		QImage result = blur.getResultImg();
 		replaceImageAt(&result, currentImgId);
 	}	
 }
@@ -144,10 +148,14 @@ void ImageViewer::ActionSharpen()
 		int radius = ui.radiusSlider->value();
 		int amount = ui.amountSlider->value();
 		QImage target = getImage(currentImgId);
-		ImageFilter sharpen("sharpen", radius, amount);
+		ImageFilter sharpen("sharpen", radius, amount, &target);
 
-		QImage result = sharpen.getResult(&target);
+		std::cout << "main thread " << std::this_thread::get_id() << ": init " << std::endl;
+		QtConcurrent::run(&sharpen, &ImageFilter::applySharpen);
 
+		QThreadPool::globalInstance()->waitForDone();
+		std::cout << "main thread " << std::this_thread::get_id() << ": finished " << std::endl;
+		QImage result = sharpen.getResultImg();
 		replaceImageAt(&result, currentImgId);
 	}
 }

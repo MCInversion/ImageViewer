@@ -12,6 +12,9 @@
 #include <algorithm>
 #include <thread>
 #include <future>
+#include <mutex>
+#include <QtConcurrent/QtConcurrent>
+#include <QFuture>
 #include <functional>
 #include "ImageViewer.h"
 
@@ -19,31 +22,32 @@ class ImageFilter
 {
 private:
 	QString type;
-	QImage resultImage;
-	QImage originalImage;
+	QImage* resultImage = NULL;
+	QImage* originalImage = NULL;
 	int radius = 10;
 	int amount = 10;
-	bool finished = false;
+	bool useHardwareConcurrency = false;
+	std::mutex _threadMutex;
+	std::mutex _kernelMutex;
 public:
 	ImageFilter();
-	ImageFilter(QString type, int radius, int amount);
+	ImageFilter(QString type, int radius, int amount, QImage* original);
 	~ImageFilter();
 
 	void setType(QString type);
 	void setRadius(int radius);
 	void setAmount(int amount);
-	void setFinished(bool value);
-	bool isFinished();
 
 	QString getType();
 	int Radius();
 	int Amount();
 
 	// procedures
-	void kernelSum(QImage &targetImage, QImage &resultImage, int x, int y, int ix, int jx, int iy, int jy);
-	QImage getResult(QImage *targetImage);
-	void applyBlur(QImage *targetImage);
-	void applySharpen(QImage *targetImage);
+	QRgb kernelSum(QPoint pixel);
+	QImage& getResultImg();
+	void applyBlur();
+	void applyBlur(int from, int to);
+	void applySharpen();
 };
 
 #endif // IMAGEFILTER_H

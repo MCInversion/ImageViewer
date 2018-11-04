@@ -9,6 +9,9 @@
 #include <vector>
 #include <thread>
 #include <future>
+#include <QtConcurrent/QtConcurrent>
+#include <QProgressBar>
+#include <QFuture>
 #include <QDebug>
 #include <QtGui>
 
