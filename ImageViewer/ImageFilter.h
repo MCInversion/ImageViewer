@@ -22,7 +22,6 @@ class ImageFilter
 {
 private:
 	QString type;
-	QImage* originalImage = NULL;
 	QImage* blurredImage = NULL;
 	QImage* sharpenedImage = NULL;
 	int radius = 10;
@@ -30,10 +29,13 @@ private:
 	bool useHardwareConcurrency = false;
 	std::mutex _threadMutex;
 	std::mutex _kernelMutex;
+	bool _hasStarted = false;
 public:
 	ImageFilter();
-	ImageFilter(QString type, int radius, int amount, QImage* original);
+	ImageFilter(QString type, int radius, int amount, FilteredImage* original);
 	~ImageFilter();
+
+	FilteredImage* originalImage = NULL;
 
 	void setType(QString type);
 	void setRadius(int radius);
