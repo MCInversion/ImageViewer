@@ -162,6 +162,8 @@ void ImageFilter::applySharpen()
 	if (amount > 0) {
 		applyBlur();
 	
+		// the image is dark because the previous 4 threads launched in applyBlur() have not yet finished their calculation
+		// by the time the following code is executed
 		int height = blurredImage->height();
 		int width = blurredImage->width();
 		QImage::Format format = blurredImage->format();
@@ -180,8 +182,8 @@ void ImageFilter::applySharpen()
 				greenF = std::max((float)0., std::min(greenF, (float)255.));
 				blueF = std::max((float)0., std::min(blueF, (float)255.));
 
-				QColor resultColor = QColor(((int)redF + 0.5), ((int)greenF + 0.5), ((int)blueF + 0.5));
-				sharpenedImage->setPixelColor(QPoint(x, y), resultColor);
+				QRgb resultColor = QColor(((int)redF + 0.5), ((int)greenF + 0.5), ((int)blueF + 0.5)).rgb();
+				*((QRgb*)sharpenedImage->scanLine(y) + x) = resultColor;
 			}
 		}
 	}

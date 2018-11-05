@@ -19,13 +19,19 @@ void ImageViewer::replaceImageAt(std::future<QImage>& futureReplacement, int i)
 {
 	QImage replacement = futureReplacement.get();
 	images.replace(i, replacement);
-	displayImage(&getImage(i));
+	QSize viewerSize = ui.graphicsView->size();
+	bool keepAspectRatio = ui.checkBox->isChecked();
+	QImage viewed = getResized(&getImage(i), viewerSize, keepAspectRatio);
+	displayImage(&viewed);
 }
 
 void ImageViewer::replaceImageAt(QImage *replacement, int i)
 {
 	images.replace(i, *replacement);
-	displayImage(&getImage(i));
+	QSize viewerSize = ui.graphicsView->size();
+	bool keepAspectRatio = ui.checkBox->isChecked();
+	QImage viewed = getResized(&getImage(i), viewerSize, keepAspectRatio);
+	displayImage(&viewed);
 }
 
 void ImageViewer::resizeEvent(QResizeEvent *event)
