@@ -6,8 +6,8 @@ QRgb ImageFilter::kernelSum(int x, int y)
 	int meany = y;
 	int ix, iy, jx, jy;
 
-	int height = originalImage->originalImage->height();
-	int width = originalImage->originalImage->width();
+	int height = _originalImage->height();
+	int width = _originalImage->width();
 
 	float sumR = 0.;
 	float sumG = 0.;
@@ -15,35 +15,35 @@ QRgb ImageFilter::kernelSum(int x, int y)
 	float wsum = 0.;
 	float weight;
 
-	float sigma = radius / 2.75;
+	float sigma = _radius / 2.75;
 
-	if (x - radius < 0) {
+	if (x - _radius < 0) {
 		ix = x;
 	}
-	else ix = radius;
+	else ix = _radius;
 
-	if (y - radius < 0) {
+	if (y - _radius < 0) {
 		iy = y;
 	}
-	else iy = radius;
+	else iy = _radius;
 
-	if (x + radius > width - 1) {
+	if (x + _radius > width - 1) {
 		jx = width - 1 - x;
 	}
-	else jx = radius;
+	else jx = _radius;
 
-	if (y + radius > height - 1) {
+	if (y + _radius > height - 1) {
 		jy = height - 1 - y;
 	}
-	else jy = radius;
+	else jy = _radius;
 
 	for (int i = x - ix; i <= x + jx; i++) {
 		for (int j = y - iy; j <= y + jy; j++) {
 			weight = 1. / (2. * M_PI * sigma * sigma) * exp(-((meanx - i) * (meanx - i) + (meany - j) * (meany - j)) / (2. * sigma * sigma));
 
-			sumR += originalImage->originalImage->pixelColor(i, j).red() / 255. * weight;
-			sumG += originalImage->originalImage->pixelColor(i, j).green() / 255. * weight;
-			sumB += originalImage->originalImage->pixelColor(i, j).blue() / 255. * weight;
+			sumR += _originalImage->pixelColor(i, j).red() / 255. * weight;
+			sumG += _originalImage->pixelColor(i, j).green() / 255. * weight;
+			sumB += _originalImage->pixelColor(i, j).blue() / 255. * weight;
 
 			wsum += weight;
 		}
@@ -58,24 +58,24 @@ QRgb ImageFilter::kernelSum(int x, int y)
 
 QImage& ImageFilter::getBlurredImg()
 {
-	return *blurredImage;
+	return *_blurredImage;
 }
 
 QImage& ImageFilter::getSharpenedImg()
 {
-	return *sharpenedImage;
+	return *_sharpenedImage;
 }
 
 ImageFilter::ImageFilter()
 {
 }
 
-ImageFilter::ImageFilter(QString type, int radius, int amount, FilteredImage* original)
+ImageFilter::ImageFilter(QString type, int radius, int amount, QImage* original)
 {
-	this->radius = radius;
-	this->type = type;
-	this->amount = amount;
-	this->originalImage = original;
+	_radius = radius;
+	_type = type;
+	_amount = amount;
+	_originalImage = original;
 }
 
 
@@ -85,49 +85,49 @@ ImageFilter::~ImageFilter()
 
 QString ImageFilter::getType()
 {
-	return type;
+	return _type;
 }
 
 void ImageFilter::setType(QString type)
 {
-	this->type = type;
+	_type = type;
 }
 
 int ImageFilter::Radius()
 {
-	return radius;
+	return _radius;
 }
 
 int ImageFilter::Amount()
 {
-	return amount;
+	return _amount;
 }
 
 void ImageFilter::setRadius(int radius)
 {
-	this->radius = radius;
+	_radius = radius;
 }
 
 void ImageFilter::setAmount(int amount)
 {
-	this->amount = amount;
+	_amount = amount;
 }
 
 void ImageFilter::applyBlur()
 {
-	if (originalImage->originalImage->isNull()) {
+	if (_originalImage->isNull()) {
 		return;
 	}
 
-	int height = originalImage->originalImage->height();
-	int width = originalImage->originalImage->width();
-	QImage::Format format = originalImage->originalImage->format();
+	int height = _originalImage->height();
+	int width = _originalImage->width();
+	QImage::Format format = _originalImage->format();
 
-	blurredImage = new QImage(width, height, format);
+	_blurredImage = new QImage(width, height, format);
 
 	int threadCount = QThreadPool::globalInstance()->maxThreadCount();
 	std::cout << "child thread " << std::this_thread::get_id() << ": initiating image processing on " << threadCount << " additional threads..." << std::endl;
-	int step = originalImage->originalImage->height() / threadCount;
+	int step = _originalImage->height() / threadCount;
 
 	for (int i = 0; i < threadCount; i++) {
 		std::lock_guard<std::mutex> guard(_threadMutex);
@@ -135,13 +135,11 @@ void ImageFilter::applyBlur()
 			QtConcurrent::run(this, &ImageFilter::applyBlur, i * step, (i + 1) * step);
 			std::cout << "child thread " << std::this_thread::get_id() << ": y from " << i * step << " to " << (i + 1) * step << std::endl;
 		} else {
-			QtConcurrent::run(this, &ImageFilter::applyBlur, i * step, originalImage->originalImage->height());
-			std::cout << "child thread " << std::this_thread::get_id() << ": y from " << i * step << " to " << originalImage->originalImage->height() << std::endl;
+			QtConcurrent::run(this, &ImageFilter::applyBlur, i * step, _originalImage->height());
+			std::cout << "child thread " << std::this_thread::get_id() << ": y from " << i * step << " to " << _originalImage->height() << std::endl;
 		}
 	}
 	std::cout << "..." << std::endl;
-
-	originalImage->processedImage = blurredImage;
 }
 
 
@@ -150,41 +148,39 @@ void ImageFilter::applyBlur(int from, int to)
 {
 	QRgb col;
 	for (int y = from; y < to; y++) {
-		for (int x = 0; x < originalImage->originalImage->width(); x++) {
+		for (int x = 0; x < _originalImage->width(); x++) {
 			std::lock_guard<std::mutex> guard(_kernelMutex);
 			col = kernelSum(x, y);
-			*((QRgb*)blurredImage->scanLine(y) + x) = col;
+			*((QRgb*)_blurredImage->scanLine(y) + x) = col;
 		}		
 	}
 }
 
 void ImageFilter::applySharpen()
 {
-	if (amount > 0) {
+	if (_amount > 0) {
 		applyBlur();
 	
-		// the image is dark because the previous 4 threads launched in applyBlur() have not yet finished their calculation
-		// by the time the following code is executed
-		int height = blurredImage->height();
-		int width = blurredImage->width();
-		QImage::Format format = blurredImage->format();
+		int height = _blurredImage->height();
+		int width = _blurredImage->width();
+		QImage::Format format = _blurredImage->format();
 
-		sharpenedImage = new QImage(width, height, format);
+		_sharpenedImage = new QImage(width, height, format);
 
 		float redF, greenF, blueF;
 
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				redF = ((float)(originalImage->originalImage->pixelColor(x, y).red() + amount * (originalImage->originalImage->pixelColor(x, y).red() - blurredImage->pixelColor(x, y).red())));
-				greenF = ((float)(originalImage->originalImage->pixelColor(x, y).green() + amount * (originalImage->originalImage->pixelColor(x, y).green() - blurredImage->pixelColor(x, y).green())));
-				blueF = ((float)(originalImage->originalImage->pixelColor(x, y).blue() + amount * (originalImage->originalImage->pixelColor(x, y).blue() - blurredImage->pixelColor(x, y).blue())));
+				redF = ((float)(_originalImage->pixelColor(x, y).red() + _amount * (_originalImage->pixelColor(x, y).red() - _blurredImage->pixelColor(x, y).red())));
+				greenF = ((float)(_originalImage->pixelColor(x, y).green() + _amount * (_originalImage->pixelColor(x, y).green() - _blurredImage->pixelColor(x, y).green())));
+				blueF = ((float)(_originalImage->pixelColor(x, y).blue() + _amount * (_originalImage->pixelColor(x, y).blue() - _blurredImage->pixelColor(x, y).blue())));
 			
 				redF = std::max((float)0., std::min(redF, (float)255.));
 				greenF = std::max((float)0., std::min(greenF, (float)255.));
 				blueF = std::max((float)0., std::min(blueF, (float)255.));
 
 				QRgb resultColor = QColor(((int)redF + 0.5), ((int)greenF + 0.5), ((int)blueF + 0.5)).rgb();
-				*((QRgb*)sharpenedImage->scanLine(y) + x) = resultColor;
+				*((QRgb*)_sharpenedImage->scanLine(y) + x) = resultColor;
 			}
 		}
 	}

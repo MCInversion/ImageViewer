@@ -8,22 +8,10 @@
 #include "ImageFilter.h"
 #include <vector>
 #include <thread>
-#include <future>
 #include <QtConcurrent/QtConcurrent>
 #include <QProgressBar>
-#include <QFuture>
 #include <QDebug>
 #include <QtGui>
-
-class FilteredImage
-{
-public:
-	FilteredImage(QImage* original) { originalImage = original; };
-	~FilteredImage() {};
-
-	QImage* originalImage = NULL;
-	QImage* processedImage = NULL;
-};
 
 class ImageViewer : public QMainWindow
 {
@@ -41,21 +29,25 @@ public slots:
 
 	void ActionBlur();
 	void ActionSharpen();
+
+public:
 	QImage getImage(int i);
-	QImage getLast();
+	QImage& getLast();
 	void startBlurComputationThread(ImageFilter *filter);
+	void startSharpenComputationThread(ImageFilter *filter);
 	std::thread& getRunningThread();
 protected:
 	void resizeEvent(QResizeEvent *event);
-	//void keyPressEvent(QKeyEvent *event);
 private:
 	Ui::ImageViewerClass ui;
-	QList<FilteredImage> images;
-	int currentImgId = -1;
-	bool _filter_computation_started = false;
+	QList<QImage> images;
+	QMap<QImage, ImageFilter> imageToFilter;
 
+	int currentImgId = -1;
+	int processedImgId = -1;
+
+	// image methods
 	QImage getResized(QImage *image, const QSize &newSize, bool keepAspectRatio = true);
-	void replaceImageAt(std::future<QImage>& futureReplacement, int i);
 	void replaceImageAt(QImage *replacement, int i);
 	bool openImage(const QString &fileName);
 	bool saveImage(const QString &fileName);
@@ -64,9 +56,12 @@ private:
 	bool eventFilter(QObject* object, QEvent* event);
 	void clearViewer();
 
+	// process/thread methods
 	void checkIfDone();
 
-	QProgressBar bar;
-	QTimer timer;
+	// process/thread vars
+	QProgressBar _bar;
+	QTimer _timer;
+	bool _filter_computation_started = false;
 	std::thread _running_process_th;
 };

@@ -2,40 +2,34 @@
 #define IMAGEFILTER_H
 
 #define _USE_MATH_DEFINES
-#include <math.h>
 #include <QtWidgets/QMainWindow>
 #include <QFileDialog>
 #include <QGraphicsPixmapItem>
 #include <vector>
 #include <cstdlib>
+#include <cmath>
 #include <iostream>
 #include <algorithm>
 #include <thread>
-#include <future>
 #include <mutex>
 #include <QtConcurrent/QtConcurrent>
-#include <QFuture>
-#include <functional>
 #include "ImageViewer.h"
 
 class ImageFilter
 {
 private:
-	QString type;
-	QImage* blurredImage = NULL;
-	QImage* sharpenedImage = NULL;
-	int radius = 10;
-	int amount = 10;
-	bool useHardwareConcurrency = false;
+	QString _type;
+	QImage* _blurredImage = NULL;
+	QImage* _sharpenedImage = NULL;
+	QImage* _originalImage = NULL;
+	int _radius = 10;
+	int _amount = 10;
 	std::mutex _threadMutex;
 	std::mutex _kernelMutex;
-	bool _hasStarted = false;
 public:
 	ImageFilter();
-	ImageFilter(QString type, int radius, int amount, FilteredImage* original);
+	ImageFilter(QString type, int radius, int amount, QImage* original);
 	~ImageFilter();
-
-	FilteredImage* originalImage = NULL;
 
 	void setType(QString type);
 	void setRadius(int radius);

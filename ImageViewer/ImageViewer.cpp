@@ -15,19 +15,9 @@ QImage ImageViewer::getResized(QImage *image, const QSize &newSize, bool keepAsp
 	return image->scaled(newSize, (keepAspectRatio ? Qt::KeepAspectRatio : Qt::IgnoreAspectRatio), Qt::FastTransformation);
 }
 
-void ImageViewer::replaceImageAt(std::future<QImage>& futureReplacement, int i)
-{
-	QImage replacement = futureReplacement.get();
-	images.replace(i, FilteredImage(&replacement));
-	QSize viewerSize = ui.graphicsView->size();
-	bool keepAspectRatio = ui.checkBox->isChecked();
-	QImage viewed = getResized(&getImage(i), viewerSize, keepAspectRatio);
-	displayImage(&viewed);
-}
-
 void ImageViewer::replaceImageAt(QImage *replacement, int i)
 {
-	images.replace(i, FilteredImage(replacement));
+	images.replace(i, *replacement);
 	QSize viewerSize = ui.graphicsView->size();
 	bool keepAspectRatio = ui.checkBox->isChecked();
 	QImage viewed = getResized(&getImage(i), viewerSize, keepAspectRatio);
@@ -40,7 +30,7 @@ void ImageViewer::resizeEvent(QResizeEvent *event)
 
 	if (currentImgId > -1) {
 		QSize viewerSize = ui.graphicsView->size();
-		QImage displayedImg(*images.at(currentImgId).originalImage);
+		QImage displayedImg(images.at(currentImgId));
 		bool keepAspectRatio = ui.checkBox->isChecked();
 		displayedImg = getResized(&displayedImg, viewerSize, keepAspectRatio);
 		displayImage(&displayedImg);
@@ -53,7 +43,7 @@ bool ImageViewer::openImage(const QString &fileName)
 	if (!loadedImage.load(fileName))
 		return false;
 
-	images.push_back(FilteredImage(&loadedImage));
+	images.push_back(loadedImage);
 	QSize viewerSize = ui.graphicsView->size();
 	currentImgId = images.size() - 1;
 	bool keepAspectRatio = ui.checkBox->isChecked();
@@ -77,12 +67,12 @@ bool ImageViewer::saveImage(const QString &fileName)
 
 QImage ImageViewer::getImage(int i)
 {
-	return *images.at(i).originalImage;
+	return images.at(i);
 }
 
-QImage ImageViewer::getLast()
+QImage& ImageViewer::getLast()
 {
-	return *images.back().originalImage;
+	return images.back();
 }
 
 ImageViewer::ImageViewer(QWidget *parent)
@@ -145,11 +135,13 @@ void ImageViewer::ActionBlur()
 	if (currentImgId != -1) {
 		int radius = ui.radiusSlider->value();
 		int amount = ui.amountSlider->value();
-		FilteredImage target = images.at(currentImgId);
+		processedImgId = currentImgId;
+		QImage target = images.at(processedImgId);
 		ImageFilter blur("blur", radius, amount, &target);
 
+		imageToFilter.insert(target, blur);
 		std::cout << "main thread " << std::this_thread::get_id() << ": init " << std::endl;
-		// QtConcurrent::run(&blur, &ImageFilter::applyBlur);
+
 		startBlurComputationThread(&blur);
 
 		/*QThreadPool::globalInstance()->waitForDone(); // waiting freezes the GUI
@@ -164,42 +156,18 @@ void ImageViewer::ActionSharpen()
 	if (currentImgId != -1) {
 		int radius = ui.radiusSlider->value();
 		int amount = ui.amountSlider->value();
-		FilteredImage target = images.at(currentImgId);
+		QImage target = images.at(currentImgId);
 		ImageFilter sharpen("sharpen", radius, amount, &target);
-
+		imageToFilter.insert(target, sharpen);
 		std::cout << "main thread " << std::this_thread::get_id() << ": init " << std::endl;
-		QtConcurrent::run(&sharpen, &ImageFilter::applySharpen);
+		//QtConcurrent::run(&sharpen, &ImageFilter::applySharpen);
 
-		QThreadPool::globalInstance()->waitForDone(); // waiting freezes the GUI
+		/* QThreadPool::globalInstance()->waitForDone(); // waiting freezes the GUI
 		std::cout << "main thread " << std::this_thread::get_id() << ": finished " << std::endl;
 		QImage result = sharpen.getSharpenedImg();
-		replaceImageAt(&result, currentImgId);
+		replaceImageAt(&result, currentImgId); */
 	}
 }
-
-/*
-void ImageViewer::keyPressEvent(QKeyEvent *event)
-{
-	switch (event->key())
-	{
-	case Qt::Key_Return:
-	case Qt::Key_Enter:
-		qDebug() << "Enter";
-		break;
-	case Qt::Key_Escape:
-		qDebug() << "Escape";
-		break;
-	case Qt::Key_Insert:
-		qDebug() << "Insert";
-		break;
-	case Qt::Key_Delete:
-		qDebug() << "Delete";
-		break;
-	default:
-		qDebug() << "other" << event->key();
-		break;
-	}
-}*/
 
 void ImageViewer::clearViewer()
 {
@@ -209,7 +177,14 @@ void ImageViewer::clearViewer()
 void ImageViewer::checkIfDone()
 {
 	if (_running_process_th.joinable() && _filter_computation_started) {
-		replaceImageAt(images.at(currentImgId).processedImage, currentImgId);
+		QImage key = images.at(processedImgId);
+		QImage *replacement;
+		if (imageToFilter[key].getType() == QString("blur")) {
+			replacement = &imageToFilter[key].getBlurredImg();
+		} else if (imageToFilter[key].getType() == QString("sharpen")) {
+			replacement = &imageToFilter[key].getSharpenedImg();
+		}
+		replaceImageAt(replacement, processedImgId);
 	}
 }
 
@@ -262,5 +237,13 @@ void ImageViewer::startBlurComputationThread(ImageFilter *filter)
 	_filter_computation_started = true;
 	_running_process_th = std::thread([&]() {
 		filter->applyBlur();
+	});
+}
+
+void ImageViewer::startSharpenComputationThread(ImageFilter *filter)
+{
+	_filter_computation_started = true;
+	_running_process_th = std::thread([&]() {
+		filter->applySharpen();
 	});
 }
