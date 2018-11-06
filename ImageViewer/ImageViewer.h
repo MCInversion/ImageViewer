@@ -5,13 +5,13 @@
 #include <QGraphicsPixmapItem>
 #include "qlayoutitem.h"
 #include "ui_ImageViewer.h"
-#include "ImageFilter.h"
 #include <vector>
 #include <thread>
 #include <QtConcurrent/QtConcurrent>
 #include <QProgressBar>
 #include <QDebug>
 #include <QtGui>
+#include "ImageFilter.h"
 
 class ImageViewer : public QMainWindow
 {
@@ -65,3 +65,4 @@ private:
 	bool _filter_computation_started = false;
 	std::thread _running_process_th;
 };
+

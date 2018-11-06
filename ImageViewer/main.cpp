@@ -1,4 +1,5 @@
 #include "ImageViewer.h"
+#include "ImageFilter.h"
 #include <QtWidgets/QApplication>
 
 int main(int argc, char *argv[])
