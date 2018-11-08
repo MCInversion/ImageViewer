@@ -142,6 +142,16 @@ void ImageFilter::applyBlur()
 	emit filterComputationComplete();
 }
 
+FilterThread::FilterThread(QObject* parent)
+{
+	thread = new QThread(parent);
+}
+
+FilterThread::~FilterThread()
+{
+	thread->terminate();
+}
+
 void ImageFilter::applySharpen()
 {
 	if (_originalImage.isNull() || _amount == 0) {
@@ -246,7 +256,6 @@ bool ImageViewer::saveImage(const QString &fileName)
 
 ImageViewer::~ImageViewer()
 {
-	_process_thread->exit();
 }
 
 QImage ImageViewer::getImage(int i)
@@ -313,27 +322,38 @@ void ImageViewer::ActionChangeAmount()
 
 void ImageViewer::startBlurComputationThread(int radius, int amount, QImage original)
 {
-	_process_thread = new QThread(this);	
+	_process_thread = new FilterThread(this);	
 	_activeFilter = new ImageFilter("blur", radius, amount, original);
 
-	_activeFilter->moveToThread(_process_thread);
-	_process_thread->start();
+	_activeFilter->moveToThread(_process_thread->thread);
+	_process_thread->thread->start();
+
+	connect(this, SIGNAL(launchComputation()), _activeFilter, SLOT(applyBlur()));
+	connect(_activeFilter, SIGNAL(filterComputationComplete()), this, SLOT(actionsAfterCompletion()));
+
+	//alternatively with new syntax:
+	/*
 	connect(this, &ImageViewer::launchComputation, _activeFilter, &ImageFilter::applyBlur);
-	connect(_activeFilter, &ImageFilter::filterComputationComplete, this, &ImageViewer::actionsAfterCompletion);
+	connect(_activeFilter, &ImageFilter::filterComputationComplete, this, &ImageViewer::actionsAfterCompletion);*/
 
 	emit launchComputation();
 }
 
 void ImageViewer::startSharpenComputationThread(int radius, int amount, QImage original)
 {
-	_process_thread = new QThread(this);	
+	_process_thread = new FilterThread(this);	
 	_activeFilter = new ImageFilter("sharpen", radius, amount, original);
 
-	_activeFilter->moveToThread(_process_thread);
-	_process_thread->start();
+	_activeFilter->moveToThread(_process_thread->thread);
+	_process_thread->thread->start();
 
+	connect(this, SIGNAL(launchComputation()), _activeFilter, SLOT(applySharpen()));
+	connect(_activeFilter, SIGNAL(filterComputationComplete()), this, SLOT(actionsAfterCompletion()));
+
+	//alternatively with new syntax:
+	/*
 	connect(this, &ImageViewer::launchComputation, _activeFilter, &ImageFilter::applySharpen);
-	connect(_activeFilter, &ImageFilter::filterComputationComplete, this, &ImageViewer::actionsAfterCompletion);
+	connect(_activeFilter, &ImageFilter::filterComputationComplete, this, &ImageViewer::actionsAfterCompletion);*/
 
 	emit launchComputation();
 }
@@ -343,6 +363,10 @@ void ImageViewer::ActionBlur()
 	if (currentImgId != -1 && !_filter_computation_started) {
 		int radius = ui.radiusSlider->value();
 		int amount = ui.amountSlider->value();
+
+		ui.blurCheckBox->setChecked(true);
+		ui.sharpenCheckBox->setChecked(false);
+
 		processedImgId = currentImgId;
 		_processedImage = images.at(processedImgId);
 
@@ -355,6 +379,10 @@ void ImageViewer::ActionSharpen()
 	if (currentImgId != -1 && !_filter_computation_started) {
 		int radius = ui.radiusSlider->value();
 		int amount = ui.amountSlider->value();
+
+		ui.blurCheckBox->setChecked(true);
+		ui.sharpenCheckBox->setChecked(true);
+
 		processedImgId = currentImgId;
 		_processedImage = images.at(processedImgId);
 
@@ -364,13 +392,58 @@ void ImageViewer::ActionSharpen()
 
 void ImageViewer::actionsAfterCompletion()
 {
-	if (_activeFilter->getType() == "blur") {
-		replaceImageAt(_activeFilter->getBlurredImg(), processedImgId);
+	if (_activeFilter->getType() == "blur" && ui.blurCheckBox->isChecked()) {
+		ActionDisplayBlurred();
 	}
-	else if (_activeFilter->getType() == "sharpen") {
-		replaceImageAt(_activeFilter->getSharpenedImg(), processedImgId);
+	else if (_activeFilter->getType() == "sharpen" && ui.sharpenCheckBox->isChecked()) {
+		ActionDisplaySharpened();
 	}
-	_process_thread->exit(1);
+	_process_thread->thread->exit(1);
+	_filter_computation_started = false;
+}
+
+void ImageViewer::ActionDisplayBlurred()
+{
+	if (_activeFilter != NULL && !_filter_computation_started) {
+		QImage displayedImg;
+		if (ui.blurCheckBox->isChecked() && !ui.sharpenCheckBox->isChecked()) {
+			displayedImg = _activeFilter->getBlurredImg();
+		}
+		else if (!ui.sharpenCheckBox->isChecked() && !ui.blurCheckBox->isChecked()) {
+			displayedImg = _activeFilter->getOriginalImg();
+		}
+		else if (!ui.sharpenCheckBox->isChecked() && ui.blurCheckBox->isChecked()) {
+			displayedImg = _activeFilter->getBlurredImg();
+		}
+		if (!displayedImg.isNull()) {
+			QSize viewerSize = ui.graphicsView->size();
+			bool keepAspectRatio = ui.checkBox->isChecked();
+			QImage viewed = getResized(&displayedImg, viewerSize, keepAspectRatio);
+			displayImage(&viewed);
+		}
+	}
+}
+
+void ImageViewer::ActionDisplaySharpened()
+{
+	if (_activeFilter != NULL && !_filter_computation_started) {
+		QImage displayedImg;
+		if (ui.sharpenCheckBox->isChecked()) {
+			displayedImg = _activeFilter->getSharpenedImg();
+		}
+		else if (!ui.blurCheckBox->isChecked() && !ui.sharpenCheckBox->isChecked()) {
+			displayedImg = _activeFilter->getOriginalImg();
+		}
+		else if (ui.blurCheckBox->isChecked() && !ui.sharpenCheckBox->isChecked()) {
+			displayedImg = _activeFilter->getBlurredImg();
+		}
+		if (!displayedImg.isNull()) {
+			QSize viewerSize = ui.graphicsView->size();
+			bool keepAspectRatio = ui.checkBox->isChecked();
+			QImage viewed = getResized(&displayedImg, viewerSize, keepAspectRatio);
+			displayImage(&viewed);
+		}
+	}
 }
 
 void ImageViewer::clearViewer()

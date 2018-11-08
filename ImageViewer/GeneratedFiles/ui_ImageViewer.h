@@ -50,8 +50,8 @@ public:
     QGroupBox *groupBox;
     QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout_2;
-    QCheckBox *checkBox_2;
-    QCheckBox *checkBox_3;
+    QCheckBox *blurCheckBox;
+    QCheckBox *sharpenCheckBox;
     QHBoxLayout *horizontalLayout;
     QLabel *label;
     QSlider *radiusSlider;
@@ -120,15 +120,15 @@ public:
         verticalLayout_2->setContentsMargins(11, 11, 11, 11);
         verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
         verticalLayout_2->setContentsMargins(0, 0, 0, 0);
-        checkBox_2 = new QCheckBox(verticalLayoutWidget);
-        checkBox_2->setObjectName(QStringLiteral("checkBox_2"));
+        blurCheckBox = new QCheckBox(verticalLayoutWidget);
+        blurCheckBox->setObjectName(QStringLiteral("blurCheckBox"));
 
-        verticalLayout_2->addWidget(checkBox_2);
+        verticalLayout_2->addWidget(blurCheckBox);
 
-        checkBox_3 = new QCheckBox(verticalLayoutWidget);
-        checkBox_3->setObjectName(QStringLiteral("checkBox_3"));
+        sharpenCheckBox = new QCheckBox(verticalLayoutWidget);
+        sharpenCheckBox->setObjectName(QStringLiteral("sharpenCheckBox"));
 
-        verticalLayout_2->addWidget(checkBox_3);
+        verticalLayout_2->addWidget(sharpenCheckBox);
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
@@ -231,6 +231,8 @@ public:
         QObject::connect(radiusSlider, SIGNAL(sliderMoved(int)), ImageViewerClass, SLOT(ActionChangeRadius()));
         QObject::connect(actionSharpen, SIGNAL(triggered()), ImageViewerClass, SLOT(ActionSharpen()));
         QObject::connect(amountSlider, SIGNAL(sliderMoved(int)), ImageViewerClass, SLOT(ActionChangeAmount()));
+        QObject::connect(blurCheckBox, SIGNAL(stateChanged(int)), ImageViewerClass, SLOT(ActionDisplayBlurred()));
+        QObject::connect(sharpenCheckBox, SIGNAL(stateChanged(int)), ImageViewerClass, SLOT(ActionDisplaySharpened()));
 
         QMetaObject::connectSlotsByName(ImageViewerClass);
     } // setupUi
@@ -248,8 +250,8 @@ public:
         actionSharpen->setText(QApplication::translate("ImageViewerClass", "Sharpen", Q_NULLPTR));
         checkBox->setText(QApplication::translate("ImageViewerClass", "Keep Aspect Ratio", Q_NULLPTR));
         groupBox->setTitle(QApplication::translate("ImageViewerClass", "Applied filters:", Q_NULLPTR));
-        checkBox_2->setText(QApplication::translate("ImageViewerClass", "Blur", Q_NULLPTR));
-        checkBox_3->setText(QApplication::translate("ImageViewerClass", "Sharpen", Q_NULLPTR));
+        blurCheckBox->setText(QApplication::translate("ImageViewerClass", "Blur", Q_NULLPTR));
+        sharpenCheckBox->setText(QApplication::translate("ImageViewerClass", "Sharpen", Q_NULLPTR));
         label->setText(QApplication::translate("ImageViewerClass", "radius: ", Q_NULLPTR));
         radiusLabel->setText(QApplication::translate("ImageViewerClass", "10 px", Q_NULLPTR));
         label_3->setText(QApplication::translate("ImageViewerClass", "amount: ", Q_NULLPTR));

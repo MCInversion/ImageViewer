@@ -60,6 +60,15 @@ signals:
 	void filterComputationComplete();
 };
 
+class FilterThread : public QObject
+{
+	Q_OBJECT
+public:
+	QThread* thread;
+	FilterThread(QObject* parent = Q_NULLPTR);
+	~FilterThread();
+};
+
 class ImageViewer : public QMainWindow
 {
 	Q_OBJECT
@@ -83,6 +92,9 @@ public slots:
 	void ActionSharpen();
 
 	void actionsAfterCompletion();
+
+	void ActionDisplayBlurred();
+	void ActionDisplaySharpened();
 signals:
 	void launchComputation();
 protected:
@@ -91,7 +103,7 @@ private:
 	Ui::ImageViewerClass ui;
 	QList<QImage> images;
 	QImage _processedImage;
-	ImageFilter* _activeFilter;
+	ImageFilter* _activeFilter = NULL;
 
 	int currentImgId = -1;
 	int processedImgId = -1;
@@ -107,7 +119,7 @@ private:
 	void clearViewer();
 
 	// process/thread vars
-	QThread* _process_thread;
+	FilterThread* _process_thread;
 	QProgressBar _bar;
 	bool _filter_computation_started = false;
 

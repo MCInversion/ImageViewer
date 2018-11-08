@@ -70,14 +70,14 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
-             <widget class="QCheckBox" name="checkBox_2">
+             <widget class="QCheckBox" name="blurCheckBox">
               <property name="text">
                <string>Blur</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="checkBox_3">
+             <widget class="QCheckBox" name="sharpenCheckBox">
               <property name="text">
                <string>Sharpen</string>
               </property>
@@ -349,6 +349,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>blurCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>ImageViewerClass</receiver>
+   <slot>ActionDisplayBlurred()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>52</x>
+     <y>622</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>336</x>
+     <y>584</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sharpenCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>ImageViewerClass</receiver>
+   <slot>ActionDisplaySharpened()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>189</x>
+     <y>653</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>337</x>
+     <y>629</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ActionOpenImage()</slot>
@@ -359,5 +391,7 @@
   <slot>ActionSharpen()</slot>
   <slot>ActionChangeRadius()</slot>
   <slot>ActionChangeAmount()</slot>
+  <slot>ActionDisplayBlurred()</slot>
+  <slot>ActionDisplaySharpened()</slot>
  </slots>
 </ui>
