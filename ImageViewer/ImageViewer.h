@@ -36,8 +36,8 @@ private:
 	int _radius = 10;
 	int _amount = 10;
 public:
-	ImageFilter(QObject* parent);
-	ImageFilter(QString type, int radius, int amount, QImage original, QObject* parent = 0);
+	ImageFilter();
+	ImageFilter(QString type, int radius, int amount, QImage original);
 	~ImageFilter();
 
 	void setType(QString type);

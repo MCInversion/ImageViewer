@@ -72,12 +72,11 @@ QImage ImageFilter::getSharpenedImg()
 	return _sharpenedImage;
 }
 
-ImageFilter::ImageFilter(QObject* parent): QObject(parent)
+ImageFilter::ImageFilter()
 {
 }
 
-ImageFilter::ImageFilter(QString type, int radius, int amount, QImage original, QObject* parent)
-	: QObject(parent)
+ImageFilter::ImageFilter(QString type, int radius, int amount, QImage original)
 {
 	_radius = radius;
 	_type = type;
