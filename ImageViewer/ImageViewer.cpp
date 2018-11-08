@@ -226,6 +226,15 @@ void ImageViewer::resizeEvent(QResizeEvent *event)
 	}
 }
 
+void ImageViewer::closeEvent(QCloseEvent * event)
+{
+	QMainWindow::closeEvent(event);
+
+	if (_process_thread->thread->isRunning()) {
+		_process_thread->thread->terminate();
+	}	
+}
+
 bool ImageViewer::openImage(const QString &fileName)
 {
 	QImage loadedImage;
@@ -444,6 +453,11 @@ void ImageViewer::ActionDisplaySharpened()
 			displayImage(&viewed);
 		}
 	}
+}
+
+void ImageViewer::interruptThread()
+{
+	_process_thread->thread->terminate();
 }
 
 void ImageViewer::clearViewer()

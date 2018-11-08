@@ -95,10 +95,13 @@ public slots:
 
 	void ActionDisplayBlurred();
 	void ActionDisplaySharpened();
+
+	void interruptThread();
 signals:
 	void launchComputation();
 protected:
 	void resizeEvent(QResizeEvent *event);
+	void closeEvent(QCloseEvent *event);
 private:
 	Ui::ImageViewerClass ui;
 	QList<QImage> images;
