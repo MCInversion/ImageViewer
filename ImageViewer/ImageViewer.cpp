@@ -410,7 +410,7 @@ void ImageViewer::actionsAfterCompletion()
 		ActionDisplaySharpened();
 	}
 	_process_thread->thread->exit(1);
-	processedImgId = -1;
+	//processedImgId = -1;
 }
 
 void ImageViewer::ActionDisplayBlurred()
