@@ -122,7 +122,7 @@ private:
 	void clearViewer();
 
 	// process/thread vars
-	FilterThread* _process_thread;
+	FilterThread* _process_thread = NULL;
 	QProgressBar _bar;
 	bool _filter_computation_started = false;
 

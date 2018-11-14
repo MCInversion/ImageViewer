@@ -229,9 +229,9 @@ void ImageViewer::closeEvent(QCloseEvent * event)
 {
 	QMainWindow::closeEvent(event);
 
-	if (_process_thread->thread->isRunning()) {
+	if (_process_thread != NULL && _process_thread->thread->isRunning()) {
 		_process_thread->thread->terminate();
-	}	
+	}
 }
 
 bool ImageViewer::openImage(const QString &fileName)
@@ -377,6 +377,7 @@ void ImageViewer::ActionBlur()
 
 		processedImgId = currentImgId;
 		_processedImage = images.at(processedImgId);
+		//_filter_computation_started = true;
 
 		startBlurComputationThread(radius, amount, _processedImage);
 	}
@@ -393,6 +394,7 @@ void ImageViewer::ActionSharpen()
 
 		processedImgId = currentImgId;
 		_processedImage = images.at(processedImgId);
+		//_filter_computation_started = true;
 
 		startSharpenComputationThread(radius, amount, _processedImage);
 	}
@@ -400,6 +402,7 @@ void ImageViewer::ActionSharpen()
 
 void ImageViewer::actionsAfterCompletion()
 {
+	_filter_computation_started = false;
 	if (_activeFilter->getType() == "blur" && ui.blurCheckBox->isChecked()) {
 		ActionDisplayBlurred();
 	}
@@ -407,7 +410,7 @@ void ImageViewer::actionsAfterCompletion()
 		ActionDisplaySharpened();
 	}
 	_process_thread->thread->exit(1);
-	_filter_computation_started = false;
+	processedImgId = -1;
 }
 
 void ImageViewer::ActionDisplayBlurred()
@@ -424,10 +427,7 @@ void ImageViewer::ActionDisplayBlurred()
 			displayedImg = _activeFilter->getBlurredImg();
 		}
 		if (!displayedImg.isNull()) {
-			QSize viewerSize = ui.graphicsView->size();
-			bool keepAspectRatio = ui.checkBox->isChecked();
-			QImage viewed = getResized(&displayedImg, viewerSize, keepAspectRatio);
-			displayImage(&viewed);
+			replaceImageAt(displayedImg, processedImgId);
 		}
 	}
 }
@@ -446,10 +446,7 @@ void ImageViewer::ActionDisplaySharpened()
 			displayedImg = _activeFilter->getBlurredImg();
 		}
 		if (!displayedImg.isNull()) {
-			QSize viewerSize = ui.graphicsView->size();
-			bool keepAspectRatio = ui.checkBox->isChecked();
-			QImage viewed = getResized(&displayedImg, viewerSize, keepAspectRatio);
-			displayImage(&viewed);
+			replaceImageAt(displayedImg, processedImgId);
 		}
 	}
 }
