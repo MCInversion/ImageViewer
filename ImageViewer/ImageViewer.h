@@ -35,6 +35,9 @@ private:
 	QImage _originalImage;
 	int _radius = 10;
 	int _amount = 10;
+
+	int _progress;
+	int _progress_percent;
 public:
 	ImageFilter();
 	ImageFilter(QString type, int radius, int amount, QImage original);
@@ -58,6 +61,7 @@ public slots:
 	void applySharpen();
 signals:
 	void filterComputationComplete();
+	void progressIncremented();
 };
 
 class FilterThread : public QObject
@@ -97,6 +101,8 @@ public slots:
 	void ActionDisplaySharpened();
 
 	void interruptThread();
+
+	void incrementProgress();
 signals:
 	void launchComputation();
 protected:
@@ -107,9 +113,11 @@ private:
 	QList<QImage> images;
 	QImage _processedImage;
 	ImageFilter* _activeFilter = NULL;
+	// TODO: a list of active filters that can be found by keys
 
 	int currentImgId = -1;
 	int processedImgId = -1;
+	int _computation_progress;
 
 	// image methods
 	QImage getResized(QImage *image, const QSize &newSize, bool keepAspectRatio = true);
@@ -128,4 +136,6 @@ private:
 
 	void startBlurComputationThread(int radius, int amount, QImage original);
 	void startSharpenComputationThread(int radius, int amount, QImage original);
+
+	void showProgress();
 };

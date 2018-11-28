@@ -130,11 +130,21 @@ void ImageFilter::applyBlur()
 	QImage::Format format = _originalImage.format();
 
 	_blurredImage = QImage(width, height, format);
+
+	_progress = 0;
+	_progress_percent = ((int)(width * height / 100. + 0.5));
+
 	QRgb resultColor;
 	for (int x = 0; x < width; x++) {
 		for (int y = 0; y < height; y++) {
 			resultColor = kernelSum(x, y);
-			*((QRgb*)_blurredImage.scanLine(y) + x) = resultColor;			
+			*((QRgb*)_blurredImage.scanLine(y) + x) = resultColor;
+
+			_progress++;
+
+			if (_progress % _progress_percent == 0) {
+				emit progressIncremented();
+			}
 		}
 	}
 
@@ -161,6 +171,9 @@ void ImageFilter::applySharpen()
 	int width = _originalImage.width();
 	QImage::Format format = _originalImage.format();
 
+	_progress = 0;
+	_progress_percent = ((int)(width * height / 100. + 0.5));
+
 	_blurredImage = QImage(width, height, format);
 	_sharpenedImage = QImage(width, height, format);
 
@@ -181,6 +194,12 @@ void ImageFilter::applySharpen()
 
 			QRgb resultColor = QColor(((int)redF + 0.5), ((int)greenF + 0.5), ((int)blueF + 0.5)).rgb();
 			*((QRgb*)_sharpenedImage.scanLine(y) + x) = resultColor;
+
+			_progress++;
+
+			if (_progress % _progress_percent == 0) {
+				emit progressIncremented();
+			}
 		}
 	}
 
@@ -339,6 +358,9 @@ void ImageViewer::startBlurComputationThread(int radius, int amount, QImage orig
 	connect(this, SIGNAL(launchComputation()), _activeFilter, SLOT(applyBlur()));
 	connect(_activeFilter, SIGNAL(filterComputationComplete()), this, SLOT(actionsAfterCompletion()));
 
+	connect(_activeFilter, SIGNAL(progressIncremented()), this, SLOT(incrementProgress()));
+	showProgress();
+
 	//alternatively with new syntax:
 	/*
 	connect(this, &ImageViewer::launchComputation, _activeFilter, &ImageFilter::applyBlur);
@@ -357,6 +379,9 @@ void ImageViewer::startSharpenComputationThread(int radius, int amount, QImage o
 
 	connect(this, SIGNAL(launchComputation()), _activeFilter, SLOT(applySharpen()));
 	connect(_activeFilter, SIGNAL(filterComputationComplete()), this, SLOT(actionsAfterCompletion()));
+
+	connect(_activeFilter, SIGNAL(progressIncremented()), this, SLOT(incrementProgress()));
+	showProgress();
 
 	//alternatively with new syntax:
 	/*
@@ -378,6 +403,7 @@ void ImageViewer::ActionBlur()
 		processedImgId = currentImgId;
 		_processedImage = images.at(processedImgId);
 		//_filter_computation_started = true;
+		_computation_progress = 0;
 
 		startBlurComputationThread(radius, amount, _processedImage);
 	}
@@ -395,6 +421,7 @@ void ImageViewer::ActionSharpen()
 		processedImgId = currentImgId;
 		_processedImage = images.at(processedImgId);
 		//_filter_computation_started = true;
+		_computation_progress = 0;
 
 		startSharpenComputationThread(radius, amount, _processedImage);
 	}
@@ -410,7 +437,7 @@ void ImageViewer::actionsAfterCompletion()
 		ActionDisplaySharpened();
 	}
 	_process_thread->thread->exit(1);
-	//processedImgId = -1;
+	ui.statusBar->clearMessage();
 }
 
 void ImageViewer::ActionDisplayBlurred()
@@ -454,6 +481,20 @@ void ImageViewer::ActionDisplaySharpened()
 void ImageViewer::interruptThread()
 {
 	_process_thread->thread->terminate();
+}
+
+void ImageViewer::showProgress()
+{
+	if (_computation_progress <= 100 && _computation_progress >= 0) {
+		QString progressMessage = _activeFilter->getType() + " ... " + QString::number(_computation_progress) + "%";
+		ui.statusBar->showMessage(progressMessage);
+	}	
+}
+
+void ImageViewer::incrementProgress()
+{
+	_computation_progress++;
+	showProgress();
 }
 
 void ImageViewer::clearViewer()
