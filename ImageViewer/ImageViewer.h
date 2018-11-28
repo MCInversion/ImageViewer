@@ -117,7 +117,10 @@ private:
 
 	int currentImgId = -1;
 	int processedImgId = -1;
+
+	QProgressBar *_progressBar = NULL;
 	int _computation_progress;
+	void initProgress();
 
 	// image methods
 	QImage getResized(QImage *image, const QSize &newSize, bool keepAspectRatio = true);

@@ -217,6 +217,19 @@ void ImageViewer::displayImage(QImage *image)
 	update();
 }
 
+void ImageViewer::initProgress()
+{
+	_progressBar = new QProgressBar();
+
+	_progressBar->setRange(0, 100);
+	_progressBar->setValue(0);
+	_progressBar->setTextVisible(true);
+	QString progressMessage = _activeFilter->getType() + " ... " + QString::number(_computation_progress) + "%";
+	_progressBar->setFormat(progressMessage);
+
+	ui.statusBar->addPermanentWidget(_progressBar, 2);
+}
+
 QImage ImageViewer::getResized(QImage *image, const QSize &newSize, bool keepAspectRatio)
 {
 	return image->scaled(newSize, (keepAspectRatio ? Qt::KeepAspectRatio : Qt::IgnoreAspectRatio), Qt::FastTransformation);
@@ -359,6 +372,7 @@ void ImageViewer::startBlurComputationThread(int radius, int amount, QImage orig
 	connect(_activeFilter, SIGNAL(filterComputationComplete()), this, SLOT(actionsAfterCompletion()));
 
 	connect(_activeFilter, SIGNAL(progressIncremented()), this, SLOT(incrementProgress()));
+	initProgress();
 	showProgress();
 
 	//alternatively with new syntax:
@@ -381,6 +395,7 @@ void ImageViewer::startSharpenComputationThread(int radius, int amount, QImage o
 	connect(_activeFilter, SIGNAL(filterComputationComplete()), this, SLOT(actionsAfterCompletion()));
 
 	connect(_activeFilter, SIGNAL(progressIncremented()), this, SLOT(incrementProgress()));
+	initProgress();
 	showProgress();
 
 	//alternatively with new syntax:
@@ -437,7 +452,7 @@ void ImageViewer::actionsAfterCompletion()
 		ActionDisplaySharpened();
 	}
 	_process_thread->thread->exit(1);
-	ui.statusBar->clearMessage();
+	delete _progressBar;
 }
 
 void ImageViewer::ActionDisplayBlurred()
@@ -487,7 +502,8 @@ void ImageViewer::showProgress()
 {
 	if (_computation_progress <= 100 && _computation_progress >= 0) {
 		QString progressMessage = _activeFilter->getType() + " ... " + QString::number(_computation_progress) + "%";
-		ui.statusBar->showMessage(progressMessage);
+		_progressBar->setFormat(progressMessage);
+		_progressBar->setValue(_computation_progress);
 	}	
 }
 
