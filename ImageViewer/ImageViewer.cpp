@@ -417,7 +417,7 @@ void ImageViewer::ActionBlur()
 
 		processedImgId = currentImgId;
 		_processedImage = images.at(processedImgId);
-		//_filter_computation_started = true;
+		_filter_computation_started = true;
 		_computation_progress = 0;
 
 		startBlurComputationThread(radius, amount, _processedImage);
@@ -435,7 +435,7 @@ void ImageViewer::ActionSharpen()
 
 		processedImgId = currentImgId;
 		_processedImage = images.at(processedImgId);
-		//_filter_computation_started = true;
+		_filter_computation_started = true;
 		_computation_progress = 0;
 
 		startSharpenComputationThread(radius, amount, _processedImage);
