@@ -14,14 +14,21 @@ public:
 	HistogramWindow(QWidget *parent = Q_NULLPTR);
 	~HistogramWindow();
 	void ShowHistogram(QImage targetImage);
+public slots:
+	void ActionReplot();
+protected:
+	void resizeEvent(QResizeEvent *event);
+	void closeEvent(QCloseEvent *event);
 
 private:
 	Ui::HistogramWindow ui;
+	QImage *_targetImage = NULL;
 	QImage *_histogramPlot = NULL;
 
 	std::vector<int> _count_RED = std::vector<int> (256, 0);
 	std::vector<int> _count_GREEN = std::vector<int> (256, 0);
 	std::vector<int> _count_BLUE = std::vector<int> (256, 0);
+	bool _computed = false;
 	unsigned int _max_value;
 
 	void computeHistogram(QImage *targetImage);

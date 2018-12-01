@@ -31,14 +31,18 @@ HistogramWindow::HistogramWindow(QWidget *parent)
 
 HistogramWindow::~HistogramWindow()
 {
-	if (_histogramPlot != NULL) {
+	if (_histogramPlot != NULL || _targetImage != NULL) {
 		delete _histogramPlot;
+		delete _targetImage;
 	}
 }
 
 void HistogramWindow::ShowHistogram(QImage targetImage)
 {
-	computeHistogram(&targetImage);
+	if (!_computed && _targetImage == NULL) {
+		_targetImage = new QImage(targetImage);
+		computeHistogram(&targetImage);
+	}	
 
 	int width = 400;
 	int height = 300;
@@ -47,33 +51,58 @@ void HistogramWindow::ShowHistogram(QImage targetImage)
 	_histogramPlot->fill(qRgb(255, 255, 255));
 	int width_step = ((int)(width / 256. + 0.5));
 	float normalization_value = ((float)(1.1 * _max_value));
+	float normalizedValue0, normalizedValue1;
+	int x0, x1, y0, y1;
 
 	for (int i = 0; i < 255; i++) {
-		float normalizedValue0 = (float)_count_RED[i] / normalization_value;
-		float normalizedValue1 = (float)_count_RED[i + 1] / normalization_value;
-		int x0 = i * width_step, x1 = (i + 1) * width_step;
-		int y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
-		int y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
-		drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(255, 0, 0), 3);
+		if (ui.redCheckBox->isChecked()) {
+			normalizedValue0 = (float)_count_RED[i] / normalization_value;
+			normalizedValue1 = (float)_count_RED[i + 1] / normalization_value;
+			x0 = i * width_step, x1 = (i + 1) * width_step;
+			y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
+			y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
+			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(255, 0, 0), 3);
+		}		
 
-		normalizedValue0 = (float)_count_GREEN[i] / normalization_value;
-		normalizedValue1 = (float)_count_GREEN[i + 1] / normalization_value;
-		x0 = i * width_step, x1 = (i + 1) * width_step;
-		y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
-		y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
-		drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 255, 0), 3);
+		if (ui.greenCheckBox->isChecked()) {
+			normalizedValue0 = (float)_count_GREEN[i] / normalization_value;
+			normalizedValue1 = (float)_count_GREEN[i + 1] / normalization_value;
+			x0 = i * width_step, x1 = (i + 1) * width_step;
+			y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
+			y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
+			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 255, 0), 3);
+		}
 		
-		normalizedValue0 = (float)_count_BLUE[i] / normalization_value;
-		normalizedValue1 = (float)_count_BLUE[i + 1] / normalization_value;
-		x0 = i * width_step, x1 = (i + 1) * width_step;
-		y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
-		y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
-		drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 0, 255), 3);
+		if (ui.blueCheckBox->isChecked()) {
+			normalizedValue0 = (float)_count_BLUE[i] / normalization_value;
+			normalizedValue1 = (float)_count_BLUE[i + 1] / normalization_value;
+			x0 = i * width_step, x1 = (i + 1) * width_step;
+			y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
+			y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
+			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 0, 255), 3);
+		}
 	}
 
 	QSize viewerSize = ui.histogramView->size();
 	QImage viewed = getResized(_histogramPlot, viewerSize, true);
 	displayImage(&viewed);
+}
+
+void HistogramWindow::resizeEvent(QResizeEvent *event)
+{
+	QWidget::resizeEvent(event);
+
+	if (_histogramPlot != NULL) {
+		QSize viewerSize = ui.histogramView->size();
+		QImage displayedImg(*_histogramPlot);
+		displayedImg = getResized(&displayedImg, viewerSize, true);
+		displayImage(&displayedImg);
+	}	
+}
+
+void HistogramWindow::closeEvent(QCloseEvent *event)
+{
+	QWidget::closeEvent(event);
 }
 
 void HistogramWindow::computeHistogram(QImage *targetImage)
@@ -96,4 +125,13 @@ void HistogramWindow::computeHistogram(QImage *targetImage)
 			if (_count_BLUE[blue_id] > _max_value) _max_value = _count_BLUE[blue_id];
 		}
 	}
+
+	_computed = true;
+}
+
+void HistogramWindow::ActionReplot()
+{
+	if (_targetImage != NULL) {
+		ShowHistogram(*_targetImage);
+	}	
 }

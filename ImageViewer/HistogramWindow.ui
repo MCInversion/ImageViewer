@@ -30,7 +30,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="greenCheckBox">
        <property name="text">
         <string>Green</string>
        </property>
@@ -40,7 +40,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_2">
+      <widget class="QCheckBox" name="blueCheckBox">
        <property name="text">
         <string>Blue</string>
        </property>
@@ -55,5 +55,57 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>redCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>HistogramWindow</receiver>
+   <slot>ActionReplot()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>30</x>
+     <y>279</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>3</x>
+     <y>251</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>greenCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>HistogramWindow</receiver>
+   <slot>ActionReplot()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>178</x>
+     <y>271</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>2</x>
+     <y>212</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>blueCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>HistogramWindow</receiver>
+   <slot>ActionReplot()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>335</x>
+     <y>282</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>ActionReplot()</slot>
+ </slots>
 </ui>

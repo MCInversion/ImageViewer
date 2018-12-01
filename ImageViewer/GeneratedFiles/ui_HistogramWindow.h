@@ -29,8 +29,8 @@ public:
     QGraphicsView *histogramView;
     QHBoxLayout *horizontalLayout;
     QCheckBox *redCheckBox;
-    QCheckBox *checkBox;
-    QCheckBox *checkBox_2;
+    QCheckBox *greenCheckBox;
+    QCheckBox *blueCheckBox;
 
     void setupUi(QWidget *HistogramWindow)
     {
@@ -55,23 +55,26 @@ public:
 
         horizontalLayout->addWidget(redCheckBox);
 
-        checkBox = new QCheckBox(HistogramWindow);
-        checkBox->setObjectName(QStringLiteral("checkBox"));
-        checkBox->setChecked(true);
+        greenCheckBox = new QCheckBox(HistogramWindow);
+        greenCheckBox->setObjectName(QStringLiteral("greenCheckBox"));
+        greenCheckBox->setChecked(true);
 
-        horizontalLayout->addWidget(checkBox);
+        horizontalLayout->addWidget(greenCheckBox);
 
-        checkBox_2 = new QCheckBox(HistogramWindow);
-        checkBox_2->setObjectName(QStringLiteral("checkBox_2"));
-        checkBox_2->setChecked(true);
+        blueCheckBox = new QCheckBox(HistogramWindow);
+        blueCheckBox->setObjectName(QStringLiteral("blueCheckBox"));
+        blueCheckBox->setChecked(true);
 
-        horizontalLayout->addWidget(checkBox_2);
+        horizontalLayout->addWidget(blueCheckBox);
 
 
         verticalLayout->addLayout(horizontalLayout);
 
 
         retranslateUi(HistogramWindow);
+        QObject::connect(redCheckBox, SIGNAL(stateChanged(int)), HistogramWindow, SLOT(ActionReplot()));
+        QObject::connect(greenCheckBox, SIGNAL(stateChanged(int)), HistogramWindow, SLOT(ActionReplot()));
+        QObject::connect(blueCheckBox, SIGNAL(stateChanged(int)), HistogramWindow, SLOT(ActionReplot()));
 
         QMetaObject::connectSlotsByName(HistogramWindow);
     } // setupUi
@@ -80,8 +83,8 @@ public:
     {
         HistogramWindow->setWindowTitle(QApplication::translate("HistogramWindow", "HistogramWindow", Q_NULLPTR));
         redCheckBox->setText(QApplication::translate("HistogramWindow", "Red", Q_NULLPTR));
-        checkBox->setText(QApplication::translate("HistogramWindow", "Green", Q_NULLPTR));
-        checkBox_2->setText(QApplication::translate("HistogramWindow", "Blue", Q_NULLPTR));
+        greenCheckBox->setText(QApplication::translate("HistogramWindow", "Green", Q_NULLPTR));
+        blueCheckBox->setText(QApplication::translate("HistogramWindow", "Blue", Q_NULLPTR));
     } // retranslateUi
 
 };
