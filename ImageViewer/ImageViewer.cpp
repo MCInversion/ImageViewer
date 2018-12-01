@@ -517,6 +517,9 @@ void ImageViewer::ActionOpenHistogram()
 {
 	_activeHistogram = new HistogramWindow();
 	_activeHistogram->show();
+	if (currentImgId != -1) {
+		_activeHistogram->ShowHistogram(getImage(currentImgId));
+	}
 }
 
 void ImageViewer::clearViewer()

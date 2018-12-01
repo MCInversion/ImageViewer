@@ -26,7 +26,7 @@ class Ui_HistogramWindow
 {
 public:
     QVBoxLayout *verticalLayout;
-    QGraphicsView *graphicsView;
+    QGraphicsView *histogramView;
     QHBoxLayout *horizontalLayout;
     QCheckBox *redCheckBox;
     QCheckBox *checkBox;
@@ -41,10 +41,10 @@ public:
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        graphicsView = new QGraphicsView(HistogramWindow);
-        graphicsView->setObjectName(QStringLiteral("graphicsView"));
+        histogramView = new QGraphicsView(HistogramWindow);
+        histogramView->setObjectName(QStringLiteral("histogramView"));
 
-        verticalLayout->addWidget(graphicsView);
+        verticalLayout->addWidget(histogramView);
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
