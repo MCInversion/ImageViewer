@@ -17,6 +17,7 @@
 #include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -31,6 +32,7 @@ public:
     QCheckBox *redCheckBox;
     QCheckBox *greenCheckBox;
     QCheckBox *blueCheckBox;
+    QLabel *maxLabel;
 
     void setupUi(QWidget *HistogramWindow)
     {
@@ -70,6 +72,11 @@ public:
 
         verticalLayout->addLayout(horizontalLayout);
 
+        maxLabel = new QLabel(HistogramWindow);
+        maxLabel->setObjectName(QStringLiteral("maxLabel"));
+
+        verticalLayout->addWidget(maxLabel);
+
 
         retranslateUi(HistogramWindow);
         QObject::connect(redCheckBox, SIGNAL(stateChanged(int)), HistogramWindow, SLOT(ActionReplot()));
@@ -85,6 +92,7 @@ public:
         redCheckBox->setText(QApplication::translate("HistogramWindow", "Red", Q_NULLPTR));
         greenCheckBox->setText(QApplication::translate("HistogramWindow", "Green", Q_NULLPTR));
         blueCheckBox->setText(QApplication::translate("HistogramWindow", "Blue", Q_NULLPTR));
+        maxLabel->setText(QApplication::translate("HistogramWindow", "Max count = ", Q_NULLPTR));
     } // retranslateUi
 
 };

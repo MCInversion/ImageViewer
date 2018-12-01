@@ -51,6 +51,7 @@ void HistogramWindow::ShowHistogram(QImage targetImage)
 	_histogramPlot->fill(qRgb(255, 255, 255));
 	int width_step = ((int)(width / 256. + 0.5));
 	float normalization_value = ((float)(1.1 * _max_value));
+	ui.maxLabel->setText("Max count = " + QString::number(_max_value));
 	float normalizedValue0, normalizedValue1;
 	int x0, x1, y0, y1;
 	drawLine(QPoint(0, height - y_offset), QPoint(width, height - y_offset), QColor(0, 0, 0), 2); // x-axis

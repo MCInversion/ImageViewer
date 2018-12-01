@@ -51,6 +51,13 @@
      </item>
     </layout>
    </item>
+   <item>
+    <widget class="QLabel" name="maxLabel">
+     <property name="text">
+      <string>Max count = </string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
