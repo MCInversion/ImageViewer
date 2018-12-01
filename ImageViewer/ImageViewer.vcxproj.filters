@@ -36,14 +36,23 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HistogramWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ImageViewer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="HistogramWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ImageViewer.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="HistogramWindow.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
