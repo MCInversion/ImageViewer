@@ -53,6 +53,8 @@ void HistogramWindow::ShowHistogram(QImage targetImage)
 	float normalization_value = ((float)(1.1 * _max_value));
 	float normalizedValue0, normalizedValue1;
 	int x0, x1, y0, y1;
+	drawLine(QPoint(0, height - y_offset), QPoint(width, height - y_offset), QColor(0, 0, 0), 2); // x-axis
+	drawLine(QPoint(0, height - y_offset), QPoint(0, y_offset), QColor(0, 0, 0), 2); // y-axis
 
 	for (int i = 0; i < 255; i++) {
 		if (ui.redCheckBox->isChecked()) {

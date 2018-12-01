@@ -515,10 +515,12 @@ void ImageViewer::incrementProgress()
 
 void ImageViewer::ActionOpenHistogram()
 {
-	_activeHistogram = new HistogramWindow();
-	_activeHistogram->show();
-	if (currentImgId != -1) {
-		_activeHistogram->ShowHistogram(getImage(currentImgId));
+	if (images.length() > 0 && currentImgId != -1) {
+		_activeHistogram = new HistogramWindow();
+		_activeHistogram->show();
+		if (currentImgId != -1) {
+			_activeHistogram->ShowHistogram(getImage(currentImgId));
+		}
 	}
 }
 
