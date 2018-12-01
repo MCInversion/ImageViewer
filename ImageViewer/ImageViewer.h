@@ -10,11 +10,11 @@
 #include <QGraphicsPixmapItem>
 #include "qlayoutitem.h"
 #include "ui_ImageViewer.h"
+#include "ui_HistogramWindow.h"
+#include "HistogramWindow.h"
 #include <vector>
 #include <map>
 #include <thread>
-#include <mutex>
-#include <future>
 #include <QtConcurrent/QtConcurrent>
 #include <QProgressBar>
 #include <QMap>
@@ -103,13 +103,19 @@ public slots:
 	void interruptThread();
 
 	void incrementProgress();
+
+	void ActionOpenHistogram();
 signals:
 	void launchComputation();
 protected:
 	void resizeEvent(QResizeEvent *event);
 	void closeEvent(QCloseEvent *event);
 private:
+	// windows
 	Ui::ImageViewerClass ui;
+	HistogramWindow *_activeHistogram;
+
+	// Image vars
 	QList<QImage> images;
 	QImage _processedImage;
 	ImageFilter* _activeFilter = NULL;

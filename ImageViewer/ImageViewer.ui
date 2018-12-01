@@ -153,6 +153,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="histogramButton">
+          <property name="text">
+           <string>Show Histogram</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -308,8 +315,8 @@
    <slot>ActionChangeRadius()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>230</x>
-     <y>679</y>
+     <x>283</x>
+     <y>653</y>
     </hint>
     <hint type="destinationlabel">
      <x>334</x>
@@ -340,8 +347,8 @@
    <slot>ActionChangeAmount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>159</x>
-     <y>714</y>
+     <x>233</x>
+     <y>689</y>
     </hint>
     <hint type="destinationlabel">
      <x>333</x>
@@ -356,8 +363,8 @@
    <slot>ActionDisplayBlurred()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>622</y>
+     <x>66</x>
+     <y>594</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -372,12 +379,28 @@
    <slot>ActionDisplaySharpened()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>189</x>
-     <y>653</y>
+     <x>203</x>
+     <y>621</y>
     </hint>
     <hint type="destinationlabel">
      <x>337</x>
      <y>629</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>histogramButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ImageViewerClass</receiver>
+   <slot>ActionOpenHistogram()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>189</x>
+     <y>719</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>243</x>
+     <y>757</y>
     </hint>
    </hints>
   </connection>
@@ -393,5 +416,6 @@
   <slot>ActionChangeAmount()</slot>
   <slot>ActionDisplayBlurred()</slot>
   <slot>ActionDisplaySharpened()</slot>
+  <slot>ActionOpenHistogram()</slot>
  </slots>
 </ui>

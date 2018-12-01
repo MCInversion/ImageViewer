@@ -513,6 +513,12 @@ void ImageViewer::incrementProgress()
 	showProgress();
 }
 
+void ImageViewer::ActionOpenHistogram()
+{
+	_activeHistogram = new HistogramWindow();
+	_activeHistogram->show();
+}
+
 void ImageViewer::clearViewer()
 {
 	ui.graphicsView->setScene(new QGraphicsScene());

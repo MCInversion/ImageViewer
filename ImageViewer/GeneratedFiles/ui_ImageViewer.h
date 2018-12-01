@@ -25,6 +25,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
@@ -60,6 +61,7 @@ public:
     QLabel *label_3;
     QSlider *amountSlider;
     QLabel *amountLabel;
+    QPushButton *histogramButton;
     QFrame *line;
     QGraphicsView *graphicsView;
     QMenuBar *menuBar;
@@ -182,6 +184,11 @@ public:
 
         verticalLayout->addWidget(groupBox);
 
+        histogramButton = new QPushButton(centralWidget);
+        histogramButton->setObjectName(QStringLiteral("histogramButton"));
+
+        verticalLayout->addWidget(histogramButton);
+
         line = new QFrame(centralWidget);
         line->setObjectName(QStringLiteral("line"));
         line->setFrameShape(QFrame::HLine);
@@ -233,6 +240,7 @@ public:
         QObject::connect(amountSlider, SIGNAL(sliderMoved(int)), ImageViewerClass, SLOT(ActionChangeAmount()));
         QObject::connect(blurCheckBox, SIGNAL(stateChanged(int)), ImageViewerClass, SLOT(ActionDisplayBlurred()));
         QObject::connect(sharpenCheckBox, SIGNAL(stateChanged(int)), ImageViewerClass, SLOT(ActionDisplaySharpened()));
+        QObject::connect(histogramButton, SIGNAL(clicked()), ImageViewerClass, SLOT(ActionOpenHistogram()));
 
         QMetaObject::connectSlotsByName(ImageViewerClass);
     } // setupUi
@@ -256,6 +264,7 @@ public:
         radiusLabel->setText(QApplication::translate("ImageViewerClass", "10 px", Q_NULLPTR));
         label_3->setText(QApplication::translate("ImageViewerClass", "amount: ", Q_NULLPTR));
         amountLabel->setText(QApplication::translate("ImageViewerClass", "10 %", Q_NULLPTR));
+        histogramButton->setText(QApplication::translate("ImageViewerClass", "Show Histogram", Q_NULLPTR));
         menuFile->setTitle(QApplication::translate("ImageViewerClass", "File", Q_NULLPTR));
         menuFilter->setTitle(QApplication::translate("ImageViewerClass", "Filter", Q_NULLPTR));
     } // retranslateUi
