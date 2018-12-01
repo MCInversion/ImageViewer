@@ -42,23 +42,33 @@ void HistogramWindow::ShowHistogram(QImage targetImage)
 
 	int width = 400;
 	int height = 300;
+	int y_offset = 0.1 * height;
 	_histogramPlot = new QImage(width, height, QImage::Format_RGB32);
 	_histogramPlot->fill(qRgb(255, 255, 255));
 	int width_step = ((int)(width / 256. + 0.5));
-	float normalization_value = 1.25 * _max_value;
+	float normalization_value = ((float)(1.1 * _max_value));
 
 	for (int i = 0; i < 255; i++) {
 		float normalizedValue0 = (float)_count_RED[i] / normalization_value;
 		float normalizedValue1 = (float)_count_RED[i + 1] / normalization_value;
-		drawLine(QPoint(i * width_step, ((int)normalizedValue0 * height + 0.5)), QPoint((i + 1) * width_step, ((int)normalizedValue1 * height + 0.5)), QColor(255, 0, 0), 5);
+		int x0 = i * width_step, x1 = (i + 1) * width_step;
+		int y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
+		int y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
+		drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(255, 0, 0), 3);
 
 		normalizedValue0 = (float)_count_GREEN[i] / normalization_value;
 		normalizedValue1 = (float)_count_GREEN[i + 1] / normalization_value;
-		drawLine(QPoint(i * width_step, ((int)normalizedValue0 * height + 0.5)), QPoint((i + 1) * width_step, ((int)normalizedValue1 * height + 0.5)), QColor(0, 255, 0), 5);
+		x0 = i * width_step, x1 = (i + 1) * width_step;
+		y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
+		y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
+		drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 255, 0), 3);
 		
 		normalizedValue0 = (float)_count_BLUE[i] / normalization_value;
 		normalizedValue1 = (float)_count_BLUE[i + 1] / normalization_value;
-		drawLine(QPoint(i * width_step, ((int)normalizedValue0 * height + 0.5)), QPoint((i + 1) * width_step, ((int)normalizedValue1 * height + 0.5)), QColor(0, 0, 255), 5);
+		x0 = i * width_step, x1 = (i + 1) * width_step;
+		y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
+		y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
+		drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 0, 255), 3);
 	}
 
 	QSize viewerSize = ui.histogramView->size();
