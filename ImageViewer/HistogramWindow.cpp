@@ -31,8 +31,6 @@ void HistogramWindow::initProgress()
 	_bar->setRange(0, 100);
 	_bar->setValue(0);
 	_bar->setTextVisible(true);
-	QString progressMessage = " histogram: " + QString::number(_computation_progress) + "%";
-	_bar->setFormat(progressMessage);
 
 	ui.progressBarLayout->addWidget(_status_bar);
 	_status_bar->addPermanentWidget(_bar, 2);

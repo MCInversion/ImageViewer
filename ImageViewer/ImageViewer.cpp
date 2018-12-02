@@ -226,8 +226,6 @@ void ImageViewer::initProgress()
 	_progressBar->setRange(0, 100);
 	_progressBar->setValue(0);
 	_progressBar->setTextVisible(true);
-	QString progressMessage = _activeFilter->getType() + " ... " + QString::number(_computation_progress) + "%";
-	_progressBar->setFormat(progressMessage);
 
 	ui.statusBar->addPermanentWidget(_progressBar, 2);
 }
@@ -377,6 +375,10 @@ void ImageViewer::startBlurComputationThread(int radius, int amount, QImage orig
 	initProgress();
 	showProgress();
 
+	if (_activeHistogram != NULL) {
+		connect(this, SIGNAL(updateHistogram()), this, SLOT(ReopenHistogram()));
+	}
+
 	//alternatively with new syntax:
 	/*
 	connect(this, &ImageViewer::launchComputation, _activeFilter, &ImageFilter::applyBlur);
@@ -399,6 +401,10 @@ void ImageViewer::startSharpenComputationThread(int radius, int amount, QImage o
 	connect(_activeFilter, SIGNAL(progressIncremented()), this, SLOT(incrementProgress()));
 	initProgress();
 	showProgress();
+
+	if (_activeHistogram != NULL) {
+		connect(this, SIGNAL(updateHistogram()), this, SLOT(ReopenHistogram()));
+	}
 
 	//alternatively with new syntax:
 	/*
@@ -473,6 +479,9 @@ void ImageViewer::ActionDisplayBlurred()
 		if (!displayedImg.isNull()) {
 			replaceImageAt(displayedImg, processedImgId);
 		}
+		if (_activeHistogram != NULL && _activeHistogram->isVisible()) {
+			emit updateHistogram();
+		}
 	}
 }
 
@@ -491,6 +500,9 @@ void ImageViewer::ActionDisplaySharpened()
 		}
 		if (!displayedImg.isNull()) {
 			replaceImageAt(displayedImg, processedImgId);
+		}
+		if (_activeHistogram != NULL && _activeHistogram->isVisible()) {
+			emit updateHistogram();
 		}
 	}
 }
@@ -521,6 +533,15 @@ void ImageViewer::ActionOpenHistogram()
 		_activeHistogram = new HistogramWindow();
 		_activeHistogram->show();
 		_activeHistogram->initThread(getImage(currentImgId));
+	}
+}
+
+void ImageViewer::ReopenHistogram()
+{
+	if (_activeHistogram != NULL) {
+		_activeHistogram->close();
+		delete _activeHistogram;
+		ActionOpenHistogram();
 	}
 }
 

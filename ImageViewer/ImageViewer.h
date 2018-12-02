@@ -105,8 +105,10 @@ public slots:
 	void incrementProgress();
 
 	void ActionOpenHistogram();
+	void ReopenHistogram();
 signals:
 	void launchComputation();
+	void updateHistogram();
 protected:
 	void resizeEvent(QResizeEvent *event);
 	void closeEvent(QCloseEvent *event);
