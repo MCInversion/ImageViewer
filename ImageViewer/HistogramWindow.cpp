@@ -22,6 +22,31 @@ void HistogramWindow::displayImage(QImage * image)
 	update();
 }
 
+void HistogramWindow::initProgress()
+{
+	_computation_progress = 0;
+	_status_bar = new QStatusBar(this);
+	_bar = new QProgressBar();
+
+	_bar->setRange(0, 100);
+	_bar->setValue(0);
+	_bar->setTextVisible(true);
+	QString progressMessage = " histogram: " + QString::number(_computation_progress) + "%";
+	_bar->setFormat(progressMessage);
+
+	ui.progressBarLayout->addWidget(_status_bar);
+	_status_bar->addPermanentWidget(_bar, 2);
+}
+
+void HistogramWindow::showProgress()
+{
+	if (_bar != NULL && _computation_progress <= 100 && _computation_progress >= 0) {
+		QString progressMessage = " histogram: " + QString::number(_computation_progress) + "%";
+		_bar->setFormat(progressMessage);
+		_bar->setValue(_computation_progress);
+	}
+}
+
 void HistogramWindow::initThread(QImage targetImage)
 {
 	_computed_hist_thread = new HistogramThread(this);
@@ -31,6 +56,10 @@ void HistogramWindow::initThread(QImage targetImage)
 
 	connect(this, SIGNAL(histogramLaunched()), _histogram, SLOT(plotHistogram()));
 	connect(_histogram, SIGNAL(histogramPlotted()), this, SLOT(actionsAfterCompletion()));
+
+	connect(_histogram, SIGNAL(progressIncremented()), this, SLOT(incrementProgress()));
+	initProgress();
+	showProgress();
 
 	emit histogramLaunched();
 }
@@ -43,6 +72,10 @@ void HistogramWindow::initReplotThread()
 
 	connect(this, SIGNAL(histogramLaunched()), _histogram, SLOT(plotHistogram()));
 	connect(_histogram, SIGNAL(histogramPlotted()), this, SLOT(actionsAfterCompletion()));
+
+	connect(_histogram, SIGNAL(progressIncremented()), this, SLOT(incrementProgress()));
+	initProgress();
+	showProgress();
 
 	emit histogramLaunched();
 }
@@ -74,10 +107,19 @@ void HistogramWindow::actionsAfterCompletion()
 	if (_computed_hist_thread != NULL) {
 		_computed_hist_thread->thread->exit(1);
 	}
-	if (_progressBar != NULL) {
-		delete _progressBar;
-		_progressBar = NULL;
+	if (_status_bar != NULL && _bar != NULL) {
+		ui.progressBarLayout->removeWidget(_status_bar);
+		delete _bar;
+		delete _status_bar;
+		_bar = NULL;
+		_status_bar = NULL;
 	}
+}
+
+void HistogramWindow::incrementProgress()
+{
+	_computation_progress++;
+	showProgress();
 }
 
 void HistogramWindow::resizeEvent(QResizeEvent *event)
@@ -138,6 +180,9 @@ void Histogram::computeHistogram()
 {
 	int height = _targetImage->height();
 	int width = _targetImage->width();
+
+	_progress_percent = ((int)((width * height + 256) / 100. + 0.5));
+
 	_max_value = 0;
 	int red_id, green_id, blue_id;
 
@@ -152,6 +197,12 @@ void Histogram::computeHistogram()
 			if (_count_RED[red_id] > _max_value) _max_value = _count_RED[red_id];
 			if (_count_GREEN[green_id] > _max_value) _max_value = _count_GREEN[green_id];
 			if (_count_BLUE[blue_id] > _max_value) _max_value = _count_BLUE[blue_id];
+
+			_progress++;
+
+			if (_progress % _progress_percent == 0) {
+				emit progressIncremented();
+			}
 		}
 	}
 
@@ -160,12 +211,18 @@ void Histogram::computeHistogram()
 
 void Histogram::plotHistogram()
 {
+	_progress = 0;
+	int pen_width = 5;
+
 	if (!_computed) {
 		computeHistogram();
 	}
+	else {
+		_progress_percent = ((int)(256 / 100. + 0.5));
+	}
 
-	int width = 400;
-	int height = 300;
+	int width = 800;
+	int height = 600;
 	int y_offset = 0.1 * height;
 	_histogramPlot = new QImage(width, height, QImage::Format_RGB32);
 	_histogramPlot->fill(qRgb(255, 255, 255));
@@ -173,8 +230,8 @@ void Histogram::plotHistogram()
 	float normalization_value = ((float)(1.1 * _max_value));
 	float normalizedValue0, normalizedValue1;
 	int x0, x1, y0, y1;
-	drawLine(QPoint(0, height - y_offset), QPoint(width, height - y_offset), QColor(0, 0, 0), 2); // x-axis
-	drawLine(QPoint(0, height - y_offset), QPoint(0, y_offset), QColor(0, 0, 0), 2); // y-axis
+	drawLine(QPoint(0, height - y_offset), QPoint(width, height - y_offset), QColor(0, 0, 0), pen_width); // x-axis
+	drawLine(QPoint(0, height - y_offset), QPoint(0, y_offset), QColor(0, 0, 0), pen_width); // y-axis
 
 	for (int i = 0; i < 255; i++) {
 		if (_show_RED) {
@@ -183,7 +240,7 @@ void Histogram::plotHistogram()
 			x0 = i * width_step, x1 = (i + 1) * width_step;
 			y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
 			y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
-			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(255, 0, 0), 3);
+			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(255, 0, 0), pen_width);
 		}
 
 		if (_show_GREEN) {
@@ -192,7 +249,7 @@ void Histogram::plotHistogram()
 			x0 = i * width_step, x1 = (i + 1) * width_step;
 			y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
 			y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
-			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 255, 0), 3);
+			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 255, 0), pen_width);
 		}
 
 		if (_show_BLUE) {
@@ -201,7 +258,13 @@ void Histogram::plotHistogram()
 			x0 = i * width_step, x1 = (i + 1) * width_step;
 			y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
 			y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
-			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 0, 255), 3);
+			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 0, 255), pen_width);
+		}
+
+		_progress++;
+
+		if (_progress % _progress_percent == 0) {
+			emit progressIncremented();
 		}
 	}
 

@@ -52,11 +52,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="maxLabel">
-     <property name="text">
-      <string>Max count = </string>
-     </property>
-    </widget>
+    <layout class="QVBoxLayout" name="progressBarLayout"/>
    </item>
   </layout>
  </widget>

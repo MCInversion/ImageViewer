@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QGraphicsPixmapItem>
 #include <QProgressBar>
+#include <QStatusBar>
 #include <QThread>
 #include "ui_HistogramWindow.h"
 #include <vector>
@@ -27,6 +28,9 @@ private:
 
 	void computeHistogram();
 	void drawLine(const QPoint &startPt, const QPoint &endPt, QColor color, int width);
+
+	int _progress;
+	int _progress_percent;
 public:
 	Histogram();
 	Histogram(QImage *targetImage);
@@ -67,6 +71,7 @@ signals:
 public slots:
 	void ActionReplot();
 	void actionsAfterCompletion();
+	void incrementProgress();
 protected:
 	void resizeEvent(QResizeEvent *event);
 	void closeEvent(QCloseEvent *event);
@@ -76,10 +81,16 @@ private:
 
 	Histogram *_histogram = NULL;
 	HistogramThread *_computed_hist_thread = NULL;
-	QProgressBar *_progressBar = NULL;
+	QStatusBar *_status_bar = NULL;
+	QProgressBar *_bar = NULL;
+
+	int _computation_progress;
 
 	QImage getResized(QImage *image, const QSize &newSize, bool keepAspectRatio);
 	void displayImage(QImage *image);
+
+	void initProgress();
+	void showProgress();
 };
 
 #endif // HISTOGRAMWINDOW_H
