@@ -158,7 +158,9 @@ FilterThread::FilterThread(QObject* parent)
 
 FilterThread::~FilterThread()
 {
-	thread->terminate();
+	if (thread->isRunning()) {
+		thread->terminate();
+	}
 }
 
 void ImageFilter::applySharpen()
@@ -518,9 +520,7 @@ void ImageViewer::ActionOpenHistogram()
 	if (images.length() > 0 && currentImgId != -1) {
 		_activeHistogram = new HistogramWindow();
 		_activeHistogram->show();
-		if (currentImgId != -1) {
-			_activeHistogram->ShowHistogram(getImage(currentImgId));
-		}
+		_activeHistogram->initThread(getImage(currentImgId));
 	}
 }
 
