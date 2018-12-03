@@ -28,6 +28,7 @@ private:
 
 	void computeHistogram();
 	void drawLine(const QPoint &startPt, const QPoint &endPt, QColor color, int width);
+	void drawText(QString text, const QPoint &position, QColor color, int width);
 
 	int _progress;
 	int _progress_percent;

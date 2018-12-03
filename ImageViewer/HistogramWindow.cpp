@@ -161,6 +161,13 @@ void Histogram::drawLine(const QPoint & startPt, const QPoint & endPt, QColor co
 	painter.drawLine(startPt, endPt);
 }
 
+void Histogram::drawText(QString text, const QPoint & position, QColor color, int width)
+{
+	QPainter painter(_histogramPlot);
+	painter.setPen(QPen(color, width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+	painter.drawText(position.x(), position.y(), 15 * width, 20 * width, Qt::AlignLeft, text);
+}
+
 Histogram::Histogram()
 {
 }
@@ -225,19 +232,57 @@ void Histogram::plotHistogram()
 	_histogramPlot = new QImage(width, height, QImage::Format_RGB32);
 	_histogramPlot->fill(qRgb(255, 255, 255));
 	int width_step = ((int)(width / 256. + 0.5));
-	float normalization_value = ((float)(1.1 * _max_value));
+	float normalization_value = ((float)(_max_value));
 	float normalizedValue0, normalizedValue1;
 	int x0, x1, y0, y1;
-	drawLine(QPoint(0, height - y_offset), QPoint(width, height - y_offset), QColor(0, 0, 0), pen_width); // x-axis
+	drawLine(QPoint(0, height - y_offset), QPoint(width - 10 * width_step, height - y_offset), QColor(0, 0, 0), pen_width); // x-axis
+	// ticks
+	drawText(
+		QString::number(0),
+		QPoint(0, (int)(height - (1 - 0.2) * y_offset)),
+		QColor(0, 0, 0), pen_width
+	);
+	for (int i = 1; i < 51; i++) {
+		float tick_size = i % 2 == 0 ? 0.4 : 0.2;
+		drawLine(
+			QPoint(5 * i * width_step, (int)(height - (1 + 0.5 * tick_size) * y_offset)),
+			QPoint(5 * i * width_step, (int)(height - (1 - 0.5 * tick_size) * y_offset)),
+			QColor(0, 0, 0), pen_width);
+		if (i % 10 == 0) {
+			drawText(
+				QString::number(5 * i),
+				QPoint(5 * i * width_step, (int)(height - (1 - 0.2) * y_offset)),
+				QColor(0, 0, 0), pen_width
+			);
+		}
+	}
+	drawText(
+		QString::number(255),
+		QPoint(width - 8 * width_step, (int)(height - y_offset)),
+		QColor(0, 0, 0), pen_width
+	);
+	drawText(
+		QString::number(_max_value),
+		QPoint(width - 9 * width_step, y_offset),
+		QColor(0, 0, 0), (int)(0.3 * pen_width)
+	);
+	drawText(
+		QString::number((int)(0.5 * _max_value + 0.5)),
+		QPoint(width - 9 * width_step, (int)(0.5 * height + 0.5)),
+		QColor(0, 0, 0), (int)(0.3 * pen_width)
+	);
+
 	drawLine(QPoint(0, height - y_offset), QPoint(0, y_offset), QColor(0, 0, 0), pen_width); // y-axis
+	drawLine(QPoint(width - 10 * width_step, height - y_offset), QPoint(width - 10 * width_step, y_offset), QColor(0, 0, 0), (int)(0.5 * pen_width + 0.5));
+	drawLine(QPoint(0, y_offset), QPoint(width - 10 * width_step, y_offset), QColor(0, 0, 0), (int)(0.5 * pen_width + 0.5));
 
 	for (int i = 0; i < 255; i++) {
 		if (_show_RED) {
 			normalizedValue0 = (float)_count_RED[i] / normalization_value;
 			normalizedValue1 = (float)_count_RED[i + 1] / normalization_value;
 			x0 = i * width_step, x1 = (i + 1) * width_step;
-			y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
-			y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
+			y0 = ((int)(normalizedValue0 * (height - 2 * y_offset) + 0.5)) + y_offset;
+			y1 = ((int)(normalizedValue1 * (height - 2 * y_offset) + 0.5)) + y_offset;
 			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(255, 0, 0), pen_width);
 		}
 
@@ -245,8 +290,8 @@ void Histogram::plotHistogram()
 			normalizedValue0 = (float)_count_GREEN[i] / normalization_value;
 			normalizedValue1 = (float)_count_GREEN[i + 1] / normalization_value;
 			x0 = i * width_step, x1 = (i + 1) * width_step;
-			y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
-			y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
+			y0 = ((int)(normalizedValue0 * (height - 2 * y_offset) + 0.5)) + y_offset;
+			y1 = ((int)(normalizedValue1 * (height - 2 * y_offset) + 0.5)) + y_offset;
 			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 255, 0), pen_width);
 		}
 
@@ -254,8 +299,8 @@ void Histogram::plotHistogram()
 			normalizedValue0 = (float)_count_BLUE[i] / normalization_value;
 			normalizedValue1 = (float)_count_BLUE[i + 1] / normalization_value;
 			x0 = i * width_step, x1 = (i + 1) * width_step;
-			y0 = ((int)(normalizedValue0 * height + 0.5)) + y_offset;
-			y1 = ((int)(normalizedValue1 * height + 0.5)) + y_offset;
+			y0 = ((int)(normalizedValue0 * (height - 2 * y_offset) + 0.5)) + y_offset;
+			y1 = ((int)(normalizedValue1 * (height - 2 * y_offset) + 0.5)) + y_offset;
 			drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 0, 255), pen_width);
 		}
 
@@ -264,6 +309,33 @@ void Histogram::plotHistogram()
 		if (_progress % _progress_percent == 0) {
 			emit progressIncremented();
 		}
+	}
+
+	if (_show_RED) {
+		normalizedValue0 = (float)_count_RED[255] / normalization_value;
+		normalizedValue1 = 0.;
+		x0 = 255 * width_step, x1 = 256 * width_step;
+		y0 = ((int)(normalizedValue0 * (height - 2 * y_offset) + 0.5)) + y_offset;
+		y1 = ((int)(normalizedValue1 * (height - 2 * y_offset) + 0.5)) + y_offset;
+		drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(255, 0, 0), pen_width);
+	}
+
+	if (_show_GREEN) {
+		normalizedValue0 = (float)_count_GREEN[255] / normalization_value;
+		normalizedValue1 = 0.;
+		x0 = 255 * width_step, x1 = 256 * width_step;
+		y0 = ((int)(normalizedValue0 * (height - 2 * y_offset) + 0.5)) + y_offset;
+		y1 = ((int)(normalizedValue1 * (height - 2 * y_offset) + 0.5)) + y_offset;
+		drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 255, 0), pen_width);
+	}
+
+	if (_show_BLUE) {
+		normalizedValue0 = (float)_count_BLUE[255] / normalization_value;
+		normalizedValue1 = 0.;
+		x0 = 255 * width_step, x1 = 256 * width_step;
+		y0 = ((int)(normalizedValue0 * (height - 2 * y_offset) + 0.5)) + y_offset;
+		y1 = ((int)(normalizedValue1 * (height - 2 * y_offset) + 0.5)) + y_offset;
+		drawLine(QPoint(x0, height - y0), QPoint(x1, height - y1), QColor(0, 0, 255), pen_width);
 	}
 
 	emit histogramPlotted();
