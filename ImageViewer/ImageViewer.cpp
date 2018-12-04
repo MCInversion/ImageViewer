@@ -588,3 +588,4 @@ bool ImageViewer::eventFilter(QObject *object, QEvent *event)
 	}
 	return QWidget::eventFilter(object, event);
 }
+

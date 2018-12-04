@@ -236,6 +236,11 @@ void Histogram::plotHistogram()
 	float normalizedValue0, normalizedValue1;
 	int x0, x1, y0, y1;
 	drawLine(QPoint(0, height - y_offset), QPoint(width - 10 * width_step, height - y_offset), QColor(0, 0, 0), pen_width); // x-axis
+	drawText(
+		"px intensity",
+		QPoint((int)(0.5 * (width - y_offset) + 0.5), (int)(height - 0.5 * y_offset)),
+		QColor(0, 0, 0), 2 * pen_width
+	);
 	// ticks
 	drawText(
 		QString::number(0),
@@ -260,16 +265,6 @@ void Histogram::plotHistogram()
 		QString::number(255),
 		QPoint(width - 8 * width_step, (int)(height - y_offset)),
 		QColor(0, 0, 0), pen_width
-	);
-	drawText(
-		QString::number(_max_value),
-		QPoint(width - 9 * width_step, y_offset),
-		QColor(0, 0, 0), (int)(0.3 * pen_width)
-	);
-	drawText(
-		QString::number((int)(0.5 * _max_value + 0.5)),
-		QPoint(width - 9 * width_step, (int)(0.5 * height + 0.5)),
-		QColor(0, 0, 0), (int)(0.3 * pen_width)
 	);
 
 	drawLine(QPoint(0, height - y_offset), QPoint(0, y_offset), QColor(0, 0, 0), pen_width); // y-axis
